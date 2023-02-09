@@ -1,14 +1,22 @@
-import pygame, Button
+import pygame, Button, sys
 from enum import Enum
 
 screen = None
 
 def setMenu(menu):
     if(menu == Menus.MainMenu):
-        button = Button.Button(screen, "Play", pygame.font.SysFont("Arial", 25), "black", "white", pygame.Rect(0, 0, 100, 50), Button.PositionOffset.CenterScreen, mainMenu_playOnClick)
+        playButton = Button.Button("Play", pygame.font.SysFont("Arial", 25), "black", "white", pygame.Rect(0, 60, 100, 50), Button.PositionOffset.CenterScreen, mainMenu_playButtonOnClick)
+        optionsButton = Button.Button("Options", pygame.font.SysFont("Arial", 25), "black", "white", pygame.Rect(0, 0, 100, 50), Button.PositionOffset.CenterScreen, mainMenu_optionsButtonOnClick)
+        quitButton = Button.Button("Quit", pygame.font.SysFont("Arial", 25), "black", "white", pygame.Rect(0, -60, 100, 50), Button.PositionOffset.CenterScreen, mainMenu_quitButtonOnClick)
 
 class Menus(Enum):
     MainMenu = 0
 
-def mainMenu_playOnClick():
-    print("aa")
+def mainMenu_playButtonOnClick():
+    print("play")
+
+def mainMenu_optionsButtonOnClick():
+    print("options")
+
+def mainMenu_quitButtonOnClick():
+    sys.exit()

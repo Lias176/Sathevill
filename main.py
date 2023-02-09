@@ -5,6 +5,7 @@ pygame.init()
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
 MenuManager.screen = screen
+Button.screen = screen
 
 MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
