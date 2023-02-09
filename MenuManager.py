@@ -5,9 +5,9 @@ screen = None
 
 def setMenu(menu):
     if(menu == Menus.MainMenu):
-        playButton = Button.Button("Play", pygame.font.SysFont("Arial", 25), "black", "white", pygame.Rect(0, 60, 100, 50), Button.PositionOffset.CenterScreen, mainMenu_playButtonOnClick)
-        optionsButton = Button.Button("Options", pygame.font.SysFont("Arial", 25), "black", "white", pygame.Rect(0, 0, 100, 50), Button.PositionOffset.CenterScreen, mainMenu_optionsButtonOnClick)
-        quitButton = Button.Button("Quit", pygame.font.SysFont("Arial", 25), "black", "white", pygame.Rect(0, -60, 100, 50), Button.PositionOffset.CenterScreen, mainMenu_quitButtonOnClick)
+        playButton = Button.Button("Play", pygame.font.SysFont("Arial", 30, True), "black", "white", pygame.Rect(0, 60, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_playButtonOnClick)
+        optionsButton = Button.Button("Options", pygame.font.SysFont("Arial", 30, True), "black", "white", pygame.Rect(0, 0, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_optionsButtonOnClick)
+        quitButton = Button.Button("Quit", pygame.font.SysFont("Arial", 30, True), "black", "white", pygame.Rect(0, -60, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_quitButtonOnClick)
 
 class Menus(Enum):
     MainMenu = 0
