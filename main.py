@@ -1,5 +1,4 @@
 import sys, pygame, MenuManager, Button
-from enum import Enum
 
 pygame.init()
 
