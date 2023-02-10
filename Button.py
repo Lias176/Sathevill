@@ -1,4 +1,4 @@
-import pygame, gc
+import pygame
 from enum import Enum
 
 screen = None
@@ -12,7 +12,7 @@ class Button:
         self.fontColor = fontColor
         self.bgColor = bgColor
         self.onClick = onClick
-        if(offset == PositionOffset.NONE):
+        if(offset == PositionOffset.TopLeft):
             self.rect = pygame.draw.rect(screen, bgColor, rect)
         elif(offset == PositionOffset.CenterScreen):
             self.rect = pygame.draw.rect(screen, bgColor, pygame.Rect((pygame.Surface.get_width(screen) / 2) - (rect.width / 2) - rect.x, (pygame.Surface.get_height(screen) / 2) - (rect.height / 2) - rect.y, rect.width, rect.height))
@@ -20,11 +20,14 @@ class Button:
         screen.blit(self.fontRender, (self.rect.x + ((self.rect.width / 2) - (pygame.Surface.get_width(self.fontRender) / 2)), self.rect.y + ((self.rect.height / 2) - (pygame.Surface.get_height(self.fontRender) / 2))))
         buttons.append(self)
 
+    def remove(self):
+        buttons.remove(self)
+
 def mouseClicked():
     for button in buttons:
         if(button.rect.collidepoint(pygame.mouse.get_pos())):
             button.onClick()
 
 class PositionOffset(Enum):
-    NONE = 0,
+    TopLeft = 0,
     CenterScreen = 1
