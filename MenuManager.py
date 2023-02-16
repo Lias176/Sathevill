@@ -91,4 +91,3 @@ def pauseMenu_optionsButtonOnClick():
 
 def pauseMenu_backToMainMenuOnClick():
     Game.leave()
-    setMenu(Menus.MainMenu)

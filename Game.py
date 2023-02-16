@@ -25,6 +25,7 @@ def leave():
     global sprites
     inGame = False
     sprites = pygame.sprite.Group()
+    MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
 def init(initScreen : pygame.Surface):
     global screen
