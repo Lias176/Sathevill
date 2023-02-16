@@ -5,6 +5,10 @@ screen = None
 
 buttons = []
 
+def init(initScreen : pygame.Surface):
+    global screen
+    screen = initScreen
+
 class Button:
     def __init__(self, text : str, font : pygame.font, fontColor : str, bgColor : str, rect : pygame.Rect, offset : Enum, onClick : callable):
         self.text = text
@@ -27,6 +31,7 @@ def mouseClicked():
     for button in buttons:
         if(button.rect.collidepoint(pygame.mouse.get_pos())):
             button.onClick()
+            return
 
 class PositionOffset(Enum):
     TopLeft = 0,
