@@ -30,10 +30,14 @@ def loadSave(file : str):
         player.rect.x = save["location"]["x"]
         player.rect.y = save["location"]["y"]
         player.lives = save["lives"]
+        player.isAlive = save["alive"]
     except:
         player.rect.x = 0
         player.rect.y = 0
         player.lives = 3
+        player.isAlive = True
+    if(player.isAlive == False):
+        respawn()
 
 def leave():
     save()
@@ -55,7 +59,8 @@ def save():
             "x": player.rect.x,
             "y": player.rect.y
         },
-        "lives": player.lives
+        "lives": player.lives,
+        "alive": player.isAlive
     }
     global currentSave
     saveFile = open(currentSave, "w")
