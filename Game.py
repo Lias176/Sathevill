@@ -1,4 +1,4 @@
-import pygame, Player, MenuManager, Enemy, copy
+import pygame, Player, MenuManager, Enemy, copy, json, os
 
 inGame = False
 
@@ -7,6 +7,7 @@ cameraY = 0
 screen = None
 sprites = pygame.sprite.Group()
 player = None
+currentSave = None
 
 def loadSave(file : str):
     MenuManager.setMenu(None)
@@ -19,13 +20,37 @@ def loadSave(file : str):
     enemy.rect.x = 500
     enemy.rect.y = 500
     sprites.add(enemy)
+    global currentSave
+    currentSave = file
+    try:
+        saveFile = open(file)
+        save = json.loads(saveFile.read())
+        player.rect.x = save["location"]["x"]
+        player.rect.y = save["location"]["y"]
+    except:
+        player.rect.x = 0
+        player.rect.y = 0
 
 def leave():
+    save()
     global inGame
     global sprites
+    global player
     inGame = False
+    player = None
     sprites = pygame.sprite.Group()
     MenuManager.setMenu(MenuManager.Menus.MainMenu)
+
+def save():
+    save = {
+        "location": {
+            "x": player.rect.x,
+            "y": player.rect.y
+        }
+    }
+    global currentSave
+    saveFile = open(currentSave, "w")
+    json.dump(save, saveFile)
 
 def init(initScreen : pygame.Surface):
     global screen

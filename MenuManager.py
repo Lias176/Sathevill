@@ -75,7 +75,7 @@ def playMenu_backButtonOnClick():
     setMenu(Menus.MainMenu)
 
 def playMenu_saveButtonOnClick(saveNumber : int):
-    saveFile = os.path.expanduser("~\\sathevill\\save" + str(saveNumber))
+    saveFile = os.path.expanduser("~\\sathevill\\save" + str(saveNumber) + ".json")
     Game.loadSave(saveFile)
 
 # OptionsMenu
