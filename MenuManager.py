@@ -53,12 +53,18 @@ def setMenu(menu):
                 Button.Button("Continue", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), Button.PositionOffset.CenterScreen, pauseMenu_continueButtonOnClick),
                 Button.Button("Back to Main Menu", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), Button.PositionOffset.CenterScreen, pauseMenu_backToMainMenuOnClick)
             ]
+        case Menus.DeathMenu:
+            buttons = [
+                Button.Button("Respawn", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), Button.PositionOffset.CenterScreen, deathMenu_respawnOnClick),
+                Button.Button("Back to Main Menu", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), Button.PositionOffset.CenterScreen, deathMenu_backToMainMenuOnClick)
+            ]
 
 class Menus(Enum):
     MainMenu = 0,
     OptionsMenu = 1,
     PlayMenu = 2,
     PauseMenu = 3,
+    DeathMenu = 4
 
 # MainMenu
 def mainMenu_playButtonOnClick():
@@ -91,3 +97,9 @@ def pauseMenu_optionsButtonOnClick():
 
 def pauseMenu_backToMainMenuOnClick():
     Game.leave()
+
+def deathMenu_backToMainMenuOnClick():
+    Game.leave()
+
+def deathMenu_respawnOnClick():
+    Game.respawn()

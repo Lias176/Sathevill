@@ -33,6 +33,8 @@ while True:
         Game.update(clock.get_time())
     if(Game.inGame):
         Game.getSprites().draw(screen)
+        for uiElement in Game.ui:
+            screen.blit(uiElement[0], uiElement[1])
 
     pygame.display.flip()
     clock.tick()
