@@ -1,4 +1,4 @@
-import pygame, Player, MenuManager, Enemy, copy, json, os
+import pygame, Player, MenuManager, Enemy, copy, json
 
 inGame = False
 
@@ -30,13 +30,11 @@ def loadSave(file : str):
         player.rect.x = save["location"]["x"]
         player.rect.y = save["location"]["y"]
         player.lives = save["lives"]
-        player.isAlive = save["alive"]
     except:
         player.rect.x = 0
         player.rect.y = 0
         player.lives = 3
-        player.isAlive = True
-    if(player.isAlive == False):
+    if(player.lives <= 0):
         respawn()
 
 def leave():
@@ -59,8 +57,7 @@ def save():
             "x": player.rect.x,
             "y": player.rect.y
         },
-        "lives": player.lives,
-        "alive": player.isAlive
+        "lives": player.lives
     }
     global currentSave
     saveFile = open(currentSave, "w")
