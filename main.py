@@ -1,4 +1,4 @@
-import sys, pygame, MenuManager, Button, os, Game
+import sys, pygame, MenuManager, Button, os, Game, LevelCreator
 
 if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
     os.mkdir(os.path.expanduser("~\\sathevill"))
@@ -11,6 +11,7 @@ clock = pygame.time.Clock()
 MenuManager.init(screen)
 Button.init(screen)
 Game.init(screen)
+LevelCreator.init(screen)
 
 MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
@@ -21,7 +22,10 @@ while True:
                 sys.exit()
             case pygame.MOUSEBUTTONDOWN:
                 if(event.button == 1):
-                    Button.mouseClicked()
+                    if(Game.inLevelEditor):
+                        LevelCreator.mouseClicked()
+                    else:
+                        Button.mouseClicked()
             case pygame.KEYDOWN:
                 if(Game.inGame):
                     Game.keyPressed(event.key)
@@ -34,7 +38,12 @@ while True:
     if(Game.inGame):
         Game.getSprites().draw(screen)
         for uiElement in Game.ui:
-            screen.blit(uiElement[0], uiElement[1])
+            screen.blit(uiElement.surface, uiElement.pos)
+    elif(Game.inLevelEditor):
+        screen.fill("black")
+        LevelCreator.getSprites().draw(screen)
+        for uiElement in LevelCreator.ui:
+            screen.blit(uiElement.surface, uiElement.pos)
 
     pygame.display.flip()
     clock.tick()

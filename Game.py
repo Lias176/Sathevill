@@ -1,4 +1,4 @@
-import pygame, Player, MenuManager, Enemy, copy, json
+import pygame, Player, MenuManager, Enemy, copy, json, LevelCreator, UIElement
 
 inGame = False
 inLevelEditor = False
@@ -13,37 +13,31 @@ lives = []
 
 def loadSave(file : str):
     MenuManager.setMenu(None)
-    global inGame
+    global inGame, player, currentSave
     inGame = True
-    global player
     player = Player.Player()
     sprites.add(player)
     enemy = Enemy.Enemy()
     enemy.rect.x = 500
     enemy.rect.y = 500
     sprites.add(enemy)
-    global currentSave
     currentSave = file
     try:
         saveFile = open(file)
         save = json.loads(saveFile.read())
-        player.rect.x = save["location"]["x"]
-        player.rect.y = save["location"]["y"]
+        player.x = save["location"]["x"]
+        player.y = save["location"]["y"]
         player.lives = save["lives"]
     except:
-        player.rect.x = 0
-        player.rect.y = 0
+        player.x = 0
+        player.y = 0
         player.lives = 3
     if(player.lives <= 0):
         respawn()
 
 def leaveGame():
     save()
-    global inGame
-    global sprites
-    global player
-    global ui
-    global lives
+    global inGame, sprites, player, ui, lives
     inGame = False
     player = None
     sprites = pygame.sprite.Group()
@@ -52,14 +46,14 @@ def leaveGame():
     MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
 def save():
+    global currentSave
     save = {
         "location": {
-            "x": player.rect.x,
-            "y": player.rect.y
+            "x": player.x,
+            "y": player.y
         },
         "lives": player.lives
     }
-    global currentSave
     saveFile = open(currentSave, "w")
     json.dump(save, saveFile)
 
@@ -68,22 +62,19 @@ def init(initScreen : pygame.Surface):
     screen = initScreen
 
 def update(time : int):
-    global inGame
-    global player
-    global cameraX
-    global cameraY
+    global inGame, player, cameraX, cameraY
     player.update(time)
     while(len(lives) > player.lives):
         ui.remove(lives[len(lives) - 1])
         lives.pop()
     while(len(lives) < player.lives):
-        lives.append((pygame.image.load("images\\heart.png").convert(), (40 * len(lives) + 5, 5)))
+        lives.append(UIElement.UIElement(pygame.image.load("images\\heart.png").convert(), (40 * len(lives) + 5, 5)))
         ui.append(lives[len(lives) - 1])
     if(player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
         inGame = False
         MenuManager.setMenu(MenuManager.Menus.DeathMenu)
-    cameraX = player.rect.x - pygame.Surface.get_width(screen) / 2 + player.image.get_width() / 2
-    cameraY = player.rect.y - pygame.Surface.get_height(screen) / 2 + player.image.get_height() / 2
+    cameraX = player.rect.x - screen.get_width() / 2 + player.image.get_width() / 2
+    cameraY = player.rect.y - screen.get_height() / 2 + player.image.get_height() / 2
 
 def getSprites() -> pygame.sprite.Group:
     global sprites
@@ -111,15 +102,16 @@ def pause(pause : bool):
         inGame = True
 
 def respawn():
-    global player
+    global player, inGame
     player.rect.x = 0
     player.rect.y = 0
     player.isAlive = True
     player.lives = 3
-    global inGame
     MenuManager.setMenu(None)
     inGame = True
 
 def openLevelCreator():
     global inLevelEditor
     inLevelEditor = True
+    LevelCreator.openLevelEditor("level.json")
+    MenuManager.setMenu(None)

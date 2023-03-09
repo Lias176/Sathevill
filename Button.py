@@ -19,9 +19,9 @@ class Button:
         if(offset == PositionOffset.TopLeft):
             self.rect = pygame.draw.rect(screen, bgColor, rect)
         elif(offset == PositionOffset.CenterScreen):
-            self.rect = pygame.draw.rect(screen, bgColor, pygame.Rect((pygame.Surface.get_width(screen) / 2) - (rect.width / 2) - rect.x, (pygame.Surface.get_height(screen) / 2) - (rect.height / 2) - rect.y, rect.width, rect.height))
+            self.rect = pygame.draw.rect(screen, bgColor, pygame.Rect((screen.get_width() / 2) - (rect.width / 2) - rect.x, (screen.get_height() / 2) - (rect.height / 2) - rect.y, rect.width, rect.height))
         self.fontRender = font.render(text, True, fontColor)
-        screen.blit(self.fontRender, (self.rect.x + ((self.rect.width / 2) - (pygame.Surface.get_width(self.fontRender) / 2)), self.rect.y + ((self.rect.height / 2) - (pygame.Surface.get_height(self.fontRender) / 2))))
+        screen.blit(self.fontRender, (self.rect.x + ((self.rect.width / 2) - (self.fontRender.get_width() / 2)), self.rect.y + ((self.rect.height / 2) - (self.fontRender.get_height() / 2))))
         buttons.append(self)
 
     def remove(self):

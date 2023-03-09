@@ -16,13 +16,12 @@ def keyPressed(key : int):
                 Game.pause(False)
 
 def setMenu(menu):
-    global currentMenu
+    global currentMenu, buttons
     currentMenu = menu
     if(menu == None):
         screen.fill("black")
     else:
         screen.fill(pygame.Color(15, 15, 15))
-    global buttons
     if(len(buttons) > 0):
         for button in buttons:
             button.remove()
