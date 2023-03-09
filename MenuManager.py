@@ -31,9 +31,10 @@ def setMenu(menu):
     match menu:
         case Menus.MainMenu:
             buttons = [
-                Button.Button("Play", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 60, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_playButtonOnClick),
-                Button.Button("Options", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 0, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_optionsButtonOnClick),
-                Button.Button("Quit", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -60, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_quitButtonOnClick)
+                Button.Button("Play", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 90, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_playButtonOnClick),
+                Button.Button("Options", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_optionsButtonOnClick),
+                Button.Button("Level creator", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_levelCreatorButtonOnClick),
+                Button.Button("Quit", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -90, 400, 50), Button.PositionOffset.CenterScreen, mainMenu_quitButtonOnClick)
             ]
         case Menus.OptionsMenu:
             buttons = [
@@ -73,6 +74,9 @@ def mainMenu_playButtonOnClick():
 def mainMenu_optionsButtonOnClick():
     setMenu(Menus.OptionsMenu)
 
+def mainMenu_levelCreatorButtonOnClick():
+    Game.openLevelCreator()
+
 def mainMenu_quitButtonOnClick():
     sys.exit()
 
@@ -96,10 +100,10 @@ def pauseMenu_optionsButtonOnClick():
     setMenu(Menus.OptionsMenu)
 
 def pauseMenu_backToMainMenuOnClick():
-    Game.leave()
+    Game.leaveGame()
 
 def deathMenu_backToMainMenuOnClick():
-    Game.leave()
+    Game.leaveGame()
 
 def deathMenu_respawnOnClick():
     Game.respawn()

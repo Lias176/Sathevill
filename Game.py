@@ -1,7 +1,7 @@
 import pygame, Player, MenuManager, Enemy, copy, json
 
 inGame = False
-
+inLevelEditor = False
 cameraX = 0
 cameraY = 0
 screen = None
@@ -37,7 +37,7 @@ def loadSave(file : str):
     if(player.lives <= 0):
         respawn()
 
-def leave():
+def leaveGame():
     save()
     global inGame
     global sprites
@@ -119,3 +119,7 @@ def respawn():
     global inGame
     MenuManager.setMenu(None)
     inGame = True
+
+def openLevelCreator():
+    global inLevelEditor
+    inLevelEditor = True
