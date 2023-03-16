@@ -33,15 +33,18 @@ while True:
                     MenuManager.keyPressed(event.key)
 
     if(Game.inGame):
-        screen.fill("black")
         Game.update(clock.get_time())
+    elif(Game.inLevelEditor):
+        LevelCreator.update()
     if(Game.inGame):
+        screen.fill("black")
         Game.getSprites().draw(screen)
         for uiElement in Game.ui:
             screen.blit(uiElement.surface, uiElement.pos)
     elif(Game.inLevelEditor):
         screen.fill("black")
-        LevelCreator.getSprites().draw(screen)
+        for levelObject in LevelCreator.levelObjects:
+            screen.blit(levelObject.surface, levelObject.pos)
         for uiElement in LevelCreator.ui:
             screen.blit(uiElement.surface, uiElement.pos)
 

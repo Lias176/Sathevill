@@ -1,6 +1,14 @@
 [
     {
-        "image" : "images\\block.png",
-        "value" : 0
+        "image": "images\\block.png",
+        "value": 0
+    },
+    {
+        "image": "images\\schokoDring.png",
+        "value": 1
+    },
+    {
+        "image": "images\\palm.png",
+        "value": 2
     }
 ]

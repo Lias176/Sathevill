@@ -1,7 +1,7 @@
 import pygame, UIElement, json
 
 screen = None
-sprites = pygame.sprite.Group()
+levelObjects = []
 ui = []
 selectableObjects = []
 selectedObject = None
@@ -26,10 +26,18 @@ def openLevelEditor(file : str):
         image = pygame.image.load(obj["image"]).convert()
         selectableObjects.append(UIElement.UIElement(image, (selectObjectBgPanel.surface.get_width() / 2 - image.get_width() / 2, curY)))
         ui.append(selectableObjects[i])
-        curY + image.get_height() + 50
+        curY += image.get_height() + 50
 
-def getSprites() -> pygame.sprite.Group:
-    return sprites
+def blockFromPoint(point: tuple) -> tuple:
+    return(int(point[0] / 50), int(point[1] / 50))
+
+def pointFromBlock(block: tuple) -> tuple:
+    return(block[0] * 50, block[1] * 50)
+
+def update():
+    mouse = pygame.mouse.get_pressed(3)
+    if(mouse[0]):
+        mouseDown()
 
 def mouseClicked():
     global selectedObject, selectObjectBgPanel
@@ -39,5 +47,15 @@ def mouseClicked():
             rect = pygame.Rect(selectableObj.pos, (selectableObj.surface.get_width(), selectableObj.surface.get_height()))
             if(rect.collidepoint(mousePos)):
                 selectedObject = selectableObj
-    else:
-        pass
+
+def mouseDown():
+    mousePos = pygame.mouse.get_pos()
+    if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos) == False and selectedObject != None):
+        for levelObject in levelObjects:
+            rect = pygame.Rect(levelObject.pos, (levelObject.surface.get_width(), levelObject.surface.get_height()))
+            if(rect.collidepoint(mousePos)):
+                if(levelObject.surface == selectedObject.surface):
+                    return
+                else:
+                    levelObjects.remove(levelObject)
+        levelObjects.append(UIElement.UIElement(selectedObject.surface, pointFromBlock(blockFromPoint(mousePos))))
