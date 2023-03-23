@@ -1,5 +1,14 @@
-import pygame, Button, sys, functools, Game, os
+import pygame, Button, sys, functools, Game, os, LevelCreator, tkinter
 from enum import Enum
+from tkinter import filedialog
+
+class Menus(Enum):
+    MainMenu = 0,
+    OptionsMenu = 1,
+    PlayMenu = 2,
+    PauseMenu = 3,
+    DeathMenu = 4,
+    LevelCreatorMenu = 5
 
 screen = None
 buttons = []
@@ -12,8 +21,12 @@ def init(initScreen : pygame.Surface):
 def keyPressed(key : int):
     match key:
         case pygame.K_ESCAPE:
-            if(currentMenu == Menus.PauseMenu):
-                Game.pause(False)
+            match(currentMenu):
+                case Menus.PauseMenu:
+                    Game.pause(False)
+                case Menus.LevelCreatorMenu:
+                    LevelCreator.openMenu(False)
+                
 
 def setMenu(menu):
     global currentMenu, buttons
@@ -58,13 +71,12 @@ def setMenu(menu):
                 Button.Button("Respawn", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), Button.PositionOffset.CenterScreen, deathMenu_respawnOnClick),
                 Button.Button("Back to Main Menu", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), Button.PositionOffset.CenterScreen, deathMenu_backToMainMenuOnClick)
             ]
-
-class Menus(Enum):
-    MainMenu = 0,
-    OptionsMenu = 1,
-    PlayMenu = 2,
-    PauseMenu = 3,
-    DeathMenu = 4
+        case Menus.LevelCreatorMenu:
+            buttons = [
+                Button.Button("Back to LevelCreator", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 60, 400, 50), Button.PositionOffset.CenterScreen, levelCreatorMenu_backToLevelCreatorOnClick),
+                Button.Button("Save Level", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 0, 400, 50), Button.PositionOffset.CenterScreen, levelCreatorMenu_saveLevelOnClick),
+                Button.Button("Back to Main Menu", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -60, 400, 50), Button.PositionOffset.CenterScreen, levelCreatorMenu_backToMainMenuOnClick)
+            ]
 
 # MainMenu
 def mainMenu_playButtonOnClick():
@@ -106,3 +118,16 @@ def deathMenu_backToMainMenuOnClick():
 
 def deathMenu_respawnOnClick():
     Game.respawn()
+
+#LevelCreatorMenu
+def levelCreatorMenu_backToMainMenuOnClick():
+    LevelCreator.leaveLevelCreator()
+
+def levelCreatorMenu_backToLevelCreatorOnClick():
+    LevelCreator.openMenu(False)
+
+def levelCreatorMenu_saveLevelOnClick():
+    root = tkinter.Tk()
+    root.withdraw()
+    filePath = filedialog.asksaveasfilename(filetypes=[("JSON File", ".json")], parent=root)
+    LevelCreator.saveToFile(filePath if filePath.endswith(".json") else filePath + ".json")

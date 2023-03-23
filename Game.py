@@ -1,9 +1,8 @@
-import pygame, Player, MenuManager, Enemy, copy, json, LevelCreator, UIElement
+import pygame, Player, MenuManager, Enemy, copy, json, LevelCreator, GameElement
 
 inGame = False
 inLevelEditor = False
-cameraX = 0
-cameraY = 0
+camera = (0, 0)
 screen = None
 sprites = pygame.sprite.Group()
 player = None
@@ -62,19 +61,18 @@ def init(initScreen : pygame.Surface):
     screen = initScreen
 
 def update(time : int):
-    global inGame, player, cameraX, cameraY
+    global inGame, player, camera
     player.update(time)
     while(len(lives) > player.lives):
         ui.remove(lives[len(lives) - 1])
         lives.pop()
     while(len(lives) < player.lives):
-        lives.append(UIElement.UIElement(pygame.image.load("images\\heart.png").convert(), (40 * len(lives) + 5, 5)))
+        lives.append(GameElement.GameElement(pygame.image.load("images\\heart.png").convert(), (40 * len(lives) + 5, 5)))
         ui.append(lives[len(lives) - 1])
     if(player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
         inGame = False
         MenuManager.setMenu(MenuManager.Menus.DeathMenu)
-    cameraX = player.rect.x - screen.get_width() / 2 + player.image.get_width() / 2
-    cameraY = player.rect.y - screen.get_height() / 2 + player.image.get_height() / 2
+    camera = (player.rect.x - screen.get_width() / 2 + player.image.get_width() / 2, player.rect.y - screen.get_height() / 2 + player.image.get_height() / 2)
 
 def getSprites() -> pygame.sprite.Group:
     global sprites
@@ -82,8 +80,8 @@ def getSprites() -> pygame.sprite.Group:
     for sprite in sprites:
         offsetSprite = copy.copy(sprite)
         offsetSprite.rect = sprite.rect.copy()
-        offsetSprite.rect.x -= cameraX
-        offsetSprite.rect.y -= cameraY
+        offsetSprite.rect.x -= camera[0]
+        offsetSprite.rect.y -= camera[1]
         offsetSprites.add(offsetSprite)
     return offsetSprites
 
@@ -98,13 +96,13 @@ def pause(pause : bool):
         inGame = False
         MenuManager.setMenu(MenuManager.Menus.PauseMenu)
     else:
-        MenuManager.setMenu(None)
         inGame = True
+        MenuManager.setMenu(None)
 
 def respawn():
     global player, inGame
-    player.rect.x = 0
-    player.rect.y = 0
+    player.x = 0
+    player.y = 0
     player.isAlive = True
     player.lives = 3
     MenuManager.setMenu(None)
@@ -113,5 +111,5 @@ def respawn():
 def openLevelCreator():
     global inLevelEditor
     inLevelEditor = True
-    LevelCreator.openLevelEditor("level.json")
+    LevelCreator.openLevelEditor()
     MenuManager.setMenu(None)

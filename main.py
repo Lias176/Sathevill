@@ -5,7 +5,7 @@ if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
 
 pygame.init()
 
-screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+screen = pygame.display.set_mode((1920, 1032))
 clock = pygame.time.Clock()
 
 MenuManager.init(screen)
@@ -21,14 +21,16 @@ while True:
             case pygame.QUIT:
                 sys.exit()
             case pygame.MOUSEBUTTONDOWN:
+                if(Game.inLevelEditor):
+                    LevelCreator.mouseClicked(event.button)
                 if(event.button == 1):
-                    if(Game.inLevelEditor):
-                        LevelCreator.mouseClicked()
-                    else:
+                    if(Game.inLevelEditor == False):
                         Button.mouseClicked()
             case pygame.KEYDOWN:
                 if(Game.inGame):
                     Game.keyPressed(event.key)
+                elif(Game.inLevelEditor):
+                    LevelCreator.keyPressed(event.key)
                 else:
                     MenuManager.keyPressed(event.key)
 
@@ -39,14 +41,14 @@ while True:
     if(Game.inGame):
         screen.fill("black")
         Game.getSprites().draw(screen)
-        for uiElement in Game.ui:
-            screen.blit(uiElement.surface, uiElement.pos)
+        for gameElement in Game.ui:
+            screen.blit(gameElement.surface, gameElement.pos)
     elif(Game.inLevelEditor):
         screen.fill("black")
-        for levelObject in LevelCreator.levelObjects:
+        for levelObject in LevelCreator.getLevelObjects():
             screen.blit(levelObject.surface, levelObject.pos)
-        for uiElement in LevelCreator.ui:
-            screen.blit(uiElement.surface, uiElement.pos)
+        for gameElement in LevelCreator.ui:
+            screen.blit(gameElement.surface, gameElement.pos)
 
     pygame.display.flip()
     clock.tick()

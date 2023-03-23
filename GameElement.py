@@ -2,6 +2,6 @@ import pygame
 from dataclasses import dataclass
 
 @dataclass
-class UIElement:
+class GameElement:
     surface: pygame.Surface
     pos: tuple
