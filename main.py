@@ -1,4 +1,4 @@
-import sys, pygame, MenuManager, Button, os, Game, LevelCreator
+import sys, pygame, MenuManager, Button, os, Game, LevelCreator, Level
 
 if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
     os.mkdir(os.path.expanduser("~\\sathevill"))
@@ -10,7 +10,7 @@ clock = pygame.time.Clock()
 
 MenuManager.init(screen)
 Button.init(screen)
-Game.init(screen)
+Level.init(screen)
 LevelCreator.init(screen)
 
 MenuManager.setMenu(MenuManager.Menus.MainMenu)
@@ -21,34 +21,15 @@ while True:
             case pygame.QUIT:
                 sys.exit()
             case pygame.MOUSEBUTTONDOWN:
-                if(Game.inLevelEditor):
-                    LevelCreator.mouseClicked(event.button)
-                if(event.button == 1):
-                    if(Game.inLevelEditor == False):
-                        Button.mouseClicked()
+                Game.mouseClicked(event.button)
             case pygame.KEYDOWN:
-                if(Game.inGame):
-                    Game.keyPressed(event.key)
-                elif(Game.inLevelEditor):
-                    LevelCreator.keyPressed(event.key)
-                else:
-                    MenuManager.keyPressed(event.key)
+                Game.keyPressed(event.key)
 
-    if(Game.inGame):
-        Game.update(clock.get_time())
-    elif(Game.inLevelEditor):
-        LevelCreator.update()
-    if(Game.inGame):
-        screen.fill("black")
-        Game.getSprites().draw(screen)
-        for gameElement in Game.ui:
-            screen.blit(gameElement.surface, gameElement.pos)
-    elif(Game.inLevelEditor):
-        screen.fill("black")
-        for levelObject in LevelCreator.getLevelObjects():
-            screen.blit(levelObject.surface, levelObject.pos)
-        for gameElement in LevelCreator.ui:
-            screen.blit(gameElement.surface, gameElement.pos)
+    Game.update(clock.get_time())
+    
+    screen.fill("black")
+    for gameElement in Game.getGameElements():
+        screen.blit(gameElement.surface, gameElement.pos)
 
     pygame.display.flip()
     clock.tick()

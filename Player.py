@@ -1,17 +1,15 @@
-import pygame, Game
+import pygame, GameElement, math, Level
 from threading import Timer
 
-class Player(pygame.sprite.Sprite):
+class Player(GameElement.GameElement):
     def __init__(self):
+        GameElement.GameElement.__init__(self, pygame.image.load("images\\player.png").convert(), (0, 0))
         self.speed = 1
         self.lives = 3
         self.isAlive = True
         self.invincible = False
         self.x = float(0)
         self.y = float(0)
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("images\\player.png").convert()
-        self.rect = self.image.get_rect()
 
     def update(self, time : int):
         keys = pygame.key.get_pressed()
@@ -24,16 +22,15 @@ class Player(pygame.sprite.Sprite):
         if(keys[pygame.K_a] or keys[pygame.K_LEFT]):
             self.x -= self.speed * (self.speed / 2) * time
 
-        self.rect.x = int(self.x)
-        self.rect.y = int(self.y)
+        self.pos = (math.floor(self.x), math.floor(self.y))
 
-        for sprite in Game.sprites:
+        for gameElement in Level.gameElements:
             try:
-                sprite.damage
+                gameElement.damage
             except:
                 continue
-            if(self.rect.colliderect(sprite.rect) and self.lives > 0 and self.invincible == False):
-                self.takeDamage(sprite.damage)
+            if(pygame.Rect(self.pos[0], self.pos[1], self.surface.get_width(), self.surface.get_height()).colliderect(pygame.Rect(gameElement.pos[0], gameElement.pos[1], gameElement.surface.get_width(), gameElement.surface.get_height())) and self.lives > 0 and self.invincible == False):
+                self.takeDamage(gameElement.damage) 
                 if(self.lives < 0):
                     self.lives = 0
                 break

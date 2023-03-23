@@ -1,7 +1,6 @@
 import pygame
-from dataclasses import dataclass
 
-@dataclass
 class GameElement:
-    surface: pygame.Surface
-    pos: tuple
+    def __init__(self, surface : pygame.Surface, pos : tuple):
+        self.surface = surface
+        self.pos = pos

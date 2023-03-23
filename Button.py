@@ -1,4 +1,4 @@
-import pygame
+import pygame, GameElement
 from enum import Enum
 
 screen = None
@@ -11,25 +11,24 @@ def init(initScreen : pygame.Surface):
 
 class Button:
     def __init__(self, text : str, font : pygame.font, fontColor : str, bgColor : str, rect : pygame.Rect, offset : Enum, onClick : callable):
-        self.text = text
-        self.font = font
-        self.fontColor = fontColor
-        self.bgColor = bgColor
         self.onClick = onClick
         if(offset == PositionOffset.TopLeft):
-            self.rect = pygame.draw.rect(screen, bgColor, rect)
+            self.bgGameElement = GameElement.GameElement(pygame.Surface((rect.width, rect.height)), (rect.x, rect.y))
         elif(offset == PositionOffset.CenterScreen):
-            self.rect = pygame.draw.rect(screen, bgColor, pygame.Rect((screen.get_width() / 2) - (rect.width / 2) - rect.x, (screen.get_height() / 2) - (rect.height / 2) - rect.y, rect.width, rect.height))
-        self.fontRender = font.render(text, True, fontColor)
-        screen.blit(self.fontRender, (self.rect.x + ((self.rect.width / 2) - (self.fontRender.get_width() / 2)), self.rect.y + ((self.rect.height / 2) - (self.fontRender.get_height() / 2))))
+            self.bgGameElement = GameElement.GameElement(pygame.Surface((rect.width, rect.height)), (screen.get_width() / 2 - rect.width / 2 - rect.x, (screen.get_height() / 2) - (rect.height / 2) - rect.y))
+        self.bgGameElement.surface.fill(bgColor)
+        fontSurface = font.render(text, True, fontColor)
+        self.fontGameElement = GameElement.GameElement(fontSurface, (self.bgGameElement.pos[0] + (rect.width / 2 - fontSurface.get_width() / 2), self.bgGameElement.pos[1] + (rect.height / 2 - fontSurface.get_height() / 2)))
         buttons.append(self)
 
     def remove(self):
         buttons.remove(self)
 
-def mouseClicked():
+def mouseClicked(button : int):
+    if(button != 1):
+        return
     for button in buttons:
-        if(button.rect.collidepoint(pygame.mouse.get_pos())):
+        if(pygame.Rect(button.bgGameElement.pos[0], button.bgGameElement.pos[1], button.bgGameElement.surface.get_width(), button.bgGameElement.surface.get_height()).collidepoint(pygame.mouse.get_pos())):
             button.onClick()
             return
 

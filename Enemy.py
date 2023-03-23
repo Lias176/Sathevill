@@ -1,9 +1,6 @@
-import pygame
+import pygame, GameElement
 
-class Enemy(pygame.sprite.Sprite):
+class Enemy(GameElement.GameElement):
     def __init__(self):
-        self.speed = 1
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("images\\enemy.png").convert()
-        self.rect = self.image.get_rect()
+        GameElement.GameElement.__init__(self, pygame.image.load("images\\enemy.png").convert(), (0, 0))
         self.damage = 1

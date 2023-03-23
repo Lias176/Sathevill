@@ -1,6 +1,7 @@
-import pygame, GameElement, json, math, Game, MenuManager, LevelObject
+import pygame, GameElement, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm
 
 screen = None
+removeObject = None
 levelObjects = []
 ui = []
 selectableObjects = []
@@ -15,21 +16,26 @@ def init(initScreen : pygame.Surface):
     screen = initScreen
 
 def openLevelEditor():
-    global sprites, ui, selectObjectBgPanel
-    sprites = pygame.sprite.Group()
+    global levelObjects, ui, selectObjectBgPanel, removeObject
+    Game.inLevelEditor = True
+    MenuManager.setMenu(None)
     ui = []
+    levelObjects = []
     selectObjectBgPanel = GameElement.GameElement(pygame.Surface((screen.get_width() / 5, screen.get_height())), (0, 0))
     selectObjectBgPanel.surface.fill((40, 40, 40))
     selectObjectBgPanel.surface.set_alpha(200)
     ui.append(selectObjectBgPanel)
-    defaultObjectsFile = open("defaultObjects.json")
-    defaultObjects = json.loads(defaultObjectsFile.read())
     curY = 50
-    for i, obj in enumerate(defaultObjects):
-        image = pygame.image.load(obj["image"]).convert()
-        selectableObjects.append(LevelObject.LevelObject(GameElement.GameElement(image, (selectObjectBgPanel.surface.get_width() / 2 - image.get_width() / 2, curY)), obj["value"]))
-        ui.append(selectableObjects[i].gameElement)
-        curY += image.get_height() + 50
+    for obj in LevelObject.LevelObject.__subclasses__():
+        object = obj((0, 0))
+        object.pos = (selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, curY)
+        ui.append(object)
+        selectableObjects.append(object)
+        curY += object.surface.get_height() + 50
+    removeImage = pygame.image.load("images\\remove.png").convert()
+    removeObject = GameElement.GameElement(removeImage, (selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
+    ui.append(removeObject)
+    selectableObjects.append(removeObject)
 
 def leaveLevelCreator():
     global levelObjects, ui, selectableObjects, selectedObject, selectObjectBgPanel, camera, rightDownCamPos, rightDownMousePos
@@ -44,11 +50,13 @@ def leaveLevelCreator():
     Game.inLevelEditor = False
     MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
-def getLevelObjects() -> list[GameElement.GameElement]:
-    offsetLevelObjects = []
+def getGameElements():
+    finalGameElements = []
     for levelObject in levelObjects:
-        offsetLevelObjects.append(GameElement.GameElement(levelObject.gameElement.surface, (levelObject.gameElement.pos[0] - camera[0], levelObject.gameElement.pos[1] - camera[1])))
-    return offsetLevelObjects
+        finalGameElements.append(GameElement.GameElement(levelObject.surface, (levelObject.pos[0] - camera[0], levelObject.pos[1] - camera[1])))
+    for uiElement in ui:
+        finalGameElements.append(uiElement)
+    return finalGameElements
 
 def blockFromPoint(point: tuple) -> tuple:
     return(math.floor(point[0] / 50), math.floor(point[1] / 50))
@@ -74,7 +82,7 @@ def mouseClicked(button : int):
     if(button == 1):
         if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos)):
             for selectableObj in selectableObjects:
-                rect = pygame.Rect(selectableObj.gameElement.pos, (selectableObj.gameElement.surface.get_width(), selectableObj.gameElement.surface.get_height()))
+                rect = pygame.Rect(selectableObj.pos, (selectableObj.surface.get_width(), selectableObj.surface.get_height()))
                 if(rect.collidepoint(mousePos)):
                     selectedObject = selectableObj
     elif(button == 3):
@@ -86,12 +94,14 @@ def leftDown():
     worldMousePos = (mousePos[0] + camera[0], mousePos[1] + camera[1])
     if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos) == False and selectedObject != None):
         for levelObject in levelObjects:
-            if(blockFromPoint(levelObject.gameElement.pos) == blockFromPoint(worldMousePos)):
-                if(levelObject.gameElement.surface == selectedObject.gameElement.surface):
+            if(blockFromPoint(levelObject.pos) == blockFromPoint(worldMousePos)):
+                if(levelObject.surface == selectedObject.surface):
                     return
                 else:
                     levelObjects.remove(levelObject)
-        levelObjects.append(LevelObject.LevelObject(GameElement.GameElement(selectedObject.gameElement.surface, pointFromBlock(blockFromPoint(worldMousePos))), selectedObject.value))
+        if(selectedObject.surface == removeObject.surface):
+            return
+        levelObjects.append(type(selectedObject)(pointFromBlock(blockFromPoint(worldMousePos))))
 
 def rightDown():
     global camera
@@ -110,5 +120,12 @@ def saveToFile(path : str):
     levelFile = open(path, "w")
     level = []
     for levelObject in levelObjects:
-        level.append((levelObject.value, blockFromPoint(levelObject.gameElement.pos)))
+        level.append((levelObject.id, blockFromPoint(levelObject.pos)))
     json.dump(level, levelFile)
+
+def loadFile(file : str):
+    saveFile = open(file)
+    for obj in json.loads(saveFile.read()):
+        levelObjects.append(LevelObject.getClassById(obj[0])((pointFromBlock(obj[1]))))
+    MenuManager.setMenu(None)
+    Game.inLevelEditor = True
