@@ -5,7 +5,7 @@ if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
 
 pygame.init()
 
-screen = pygame.display.set_mode((1920, 1032))
+screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 
 MenuManager.init(screen)
@@ -24,6 +24,8 @@ while True:
                 Game.mouseClicked(event.button)
             case pygame.KEYDOWN:
                 Game.keyPressed(event.key)
+            case pygame.MOUSEWHEEL:
+                Game.mouseWheel(event.y)
 
     Game.update(clock.get_time())
     

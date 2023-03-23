@@ -29,3 +29,7 @@ def keyPressed(key : int):
         LevelCreator.keyPressed(key)
     else:
         MenuManager.keyPressed(key)
+
+def mouseWheel(y : int):
+    if(inLevelEditor):
+        LevelCreator.mouseWheel(y)

@@ -1,4 +1,4 @@
-import pygame, GameElement, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm
+import pygame, GameElement, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree
 
 screen = None
 removeObject = None
@@ -10,13 +10,15 @@ selectObjectBgPanel = None
 camera = (0, 0)
 rightDownMousePos = (0, 0)
 rightDownCamPos = (0, 0)
+selectObjectScrollOffset = 0
+selectObjectPanelHeight = 0
 
 def init(initScreen : pygame.Surface):
     global screen
     screen = initScreen
 
 def openLevelEditor():
-    global levelObjects, ui, selectObjectBgPanel, removeObject
+    global levelObjects, ui, selectObjectBgPanel, removeObject, selectObjectPanelHeight
     Game.inLevelEditor = True
     MenuManager.setMenu(None)
     ui = []
@@ -29,12 +31,12 @@ def openLevelEditor():
     for obj in LevelObject.LevelObject.__subclasses__():
         object = obj((0, 0))
         object.pos = (selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, curY)
-        ui.append(object)
         selectableObjects.append(object)
         curY += object.surface.get_height() + 50
     removeImage = pygame.image.load("images\\remove.png").convert()
     removeObject = GameElement.GameElement(removeImage, (selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
-    ui.append(removeObject)
+    curY += removeObject.surface.get_height() + 50
+    selectObjectPanelHeight = curY
     selectableObjects.append(removeObject)
 
 def leaveLevelCreator():
@@ -56,6 +58,8 @@ def getGameElements():
         finalGameElements.append(GameElement.GameElement(levelObject.surface, (levelObject.pos[0] - camera[0], levelObject.pos[1] - camera[1])))
     for uiElement in ui:
         finalGameElements.append(uiElement)
+    for selectableObject in selectableObjects:
+        finalGameElements.append(GameElement.GameElement(selectableObject.surface, (selectableObject.pos[0], selectableObject.pos[1] + selectObjectScrollOffset)))
     return finalGameElements
 
 def blockFromPoint(point: tuple) -> tuple:
@@ -82,12 +86,25 @@ def mouseClicked(button : int):
     if(button == 1):
         if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos)):
             for selectableObj in selectableObjects:
-                rect = pygame.Rect(selectableObj.pos, (selectableObj.surface.get_width(), selectableObj.surface.get_height()))
+                rect = pygame.Rect((selectableObj.pos[0], selectableObj.pos[1] + selectObjectScrollOffset), (selectableObj.surface.get_width(), selectableObj.surface.get_height()))
                 if(rect.collidepoint(mousePos)):
                     selectedObject = selectableObj
     elif(button == 3):
         rightDownMousePos = mousePos
         rightDownCamPos = camera
+
+def mouseWheel(y : int):
+    global selectObjectScrollOffset
+    mousePos = pygame.mouse.get_pos()
+    if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos)):
+        if(y > 0):
+            selectObjectScrollOffset += 20
+        else:
+            selectObjectScrollOffset -= 20
+        if(selectObjectScrollOffset > 0):
+            selectObjectScrollOffset = 0
+        elif(selectObjectScrollOffset < -selectObjectPanelHeight + selectObjectBgPanel.surface.get_height()):
+            selectObjectScrollOffset = -selectObjectPanelHeight + selectObjectBgPanel.surface.get_height()
 
 def leftDown():
     mousePos = pygame.mouse.get_pos()
@@ -97,7 +114,7 @@ def leftDown():
             if(blockFromPoint(levelObject.pos) == blockFromPoint(worldMousePos)):
                 if(levelObject.surface == selectedObject.surface):
                     return
-                else:
+                elif(selectedObject.surface == removeObject.surface or levelObject.layer == selectedObject.layer):
                     levelObjects.remove(levelObject)
         if(selectedObject.surface == removeObject.surface):
             return
