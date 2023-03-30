@@ -1,4 +1,4 @@
-import pygame, GameElement, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree
+import pygame, GameElement, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree, Grass, House
 
 screen = None
 removeObject = None
@@ -33,7 +33,7 @@ def openLevelEditor():
         object.pos = (selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, curY)
         selectableObjects.append(object)
         curY += object.surface.get_height() + 50
-    removeImage = pygame.image.load("images\\remove.png").convert()
+    removeImage = pygame.image.load("images\\remove.png")
     removeObject = GameElement.GameElement(removeImage, (selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
     curY += removeObject.surface.get_height() + 50
     selectObjectPanelHeight = curY
@@ -112,7 +112,7 @@ def leftDown():
     if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos) == False and selectedObject != None):
         for levelObject in levelObjects:
             if(blockFromPoint(levelObject.pos) == blockFromPoint(worldMousePos)):
-                if(levelObject.surface == selectedObject.surface):
+                if(selectedObject.surface != removeObject.surface and levelObject.id == selectedObject.id):
                     return
                 elif(selectedObject.surface == removeObject.surface or levelObject.layer == selectedObject.layer):
                     levelObjects.remove(levelObject)

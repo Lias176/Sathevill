@@ -3,7 +3,7 @@ from threading import Timer
 
 class Player(GameElement.GameElement):
     def __init__(self):
-        GameElement.GameElement.__init__(self, pygame.image.load("images\\player.png").convert(), (0, 0))
+        GameElement.GameElement.__init__(self, pygame.image.load("images\\player.png"), (0, 0))
         self.speed = 1
         self.lives = 3
         self.isAlive = True

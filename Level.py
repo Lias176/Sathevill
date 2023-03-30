@@ -68,7 +68,7 @@ def update(time : int):
         ui.remove(lives[len(lives) - 1])
         lives.pop()
     while(len(lives) < player.lives):
-        lives.append(GameElement.GameElement(pygame.image.load("images\\heart.png").convert(), (40 * len(lives) + 5, 5)))
+        lives.append(GameElement.GameElement(pygame.image.load("images\\heart.png"), (40 * len(lives) + 5, 5)))
         ui.append(lives[len(lives) - 1])
     if(player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
         Game.inGame = False

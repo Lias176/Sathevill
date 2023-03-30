@@ -1,9 +1,9 @@
 import LevelObject
 
-class Palm(LevelObject.LevelObject):
-    id = 1
+class House(LevelObject.LevelObject):
+    id = 4
     layer = 1
 
     def __init__(self, pos: tuple):
-        self.image = "images\\palm.png"
+        self.image = "images\\House.png"
         LevelObject.LevelObject.__init__(self, pos)
