@@ -1,6 +1,7 @@
-import pygame, GameElement
+import pygame
+from GameElement import GameElement
 
-class Enemy(GameElement.GameElement):
+class Enemy(GameElement):
     def __init__(self):
-        GameElement.GameElement.__init__(self, pygame.image.load("images\\enemy.png"), (0, 0))
+        GameElement.__init__(self, pygame.image.load("images\\enemy.png"), (0, 0))
         self.damage = 1

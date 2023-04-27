@@ -1,4 +1,5 @@
-import pygame, GameElement, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree, Grass, House
+import pygame, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree, Grass, House
+from GameElement import GameElement
 
 screen = None
 removeObject = None
@@ -23,7 +24,7 @@ def openLevelEditor():
     MenuManager.setMenu(None)
     ui = []
     levelObjects = []
-    selectObjectBgPanel = GameElement.GameElement(pygame.Surface((screen.get_width() / 5, screen.get_height())), (0, 0))
+    selectObjectBgPanel = GameElement(pygame.Surface((screen.get_width() / 5, screen.get_height())), (0, 0))
     selectObjectBgPanel.surface.fill((40, 40, 40))
     selectObjectBgPanel.surface.set_alpha(200)
     ui.append(selectObjectBgPanel)
@@ -34,7 +35,7 @@ def openLevelEditor():
         selectableObjects.append(object)
         curY += object.surface.get_height() + 50
     removeImage = pygame.image.load("images\\remove.png")
-    removeObject = GameElement.GameElement(removeImage, (selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
+    removeObject = GameElement(removeImage, (selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
     curY += removeObject.surface.get_height() + 50
     selectObjectPanelHeight = curY
     selectableObjects.append(removeObject)
@@ -55,11 +56,11 @@ def leaveLevelCreator():
 def getGameElements():
     finalGameElements = []
     for levelObject in levelObjects:
-        finalGameElements.append(GameElement.GameElement(levelObject.surface, (levelObject.pos[0] - camera[0], levelObject.pos[1] - camera[1])))
+        finalGameElements.append(GameElement(levelObject.surface, (levelObject.pos[0] - camera[0], levelObject.pos[1] - camera[1])))
     for uiElement in ui:
         finalGameElements.append(uiElement)
     for selectableObject in selectableObjects:
-        finalGameElements.append(GameElement.GameElement(selectableObject.surface, (selectableObject.pos[0], selectableObject.pos[1] + selectObjectScrollOffset)))
+        finalGameElements.append(GameElement(selectableObject.surface, (selectableObject.pos[0], selectableObject.pos[1] + selectObjectScrollOffset)))
     return finalGameElements
 
 def blockFromPoint(point: tuple) -> tuple:

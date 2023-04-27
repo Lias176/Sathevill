@@ -1,4 +1,6 @@
-import Player, Enemy, json, MenuManager, Game, GameElement, pygame
+import Player, json, MenuManager, Game, pygame
+from Enemy import Enemy
+from GameElement import GameElement
 
 player = None
 currentSave = None
@@ -23,7 +25,7 @@ def loadSave(file : str):
     Game.inGame = True
     player = Player.Player()
     gameElements.append(player)
-    enemy = Enemy.Enemy()
+    enemy = Enemy()
     enemy.pos = (250, 250)
     gameElements.append(enemy)
     currentSave = file
@@ -68,7 +70,7 @@ def update(time : int):
         ui.remove(lives[len(lives) - 1])
         lives.pop()
     while(len(lives) < player.lives):
-        lives.append(GameElement.GameElement(pygame.image.load("images\\heart.png"), (40 * len(lives) + 5, 5)))
+        lives.append(GameElement(pygame.image.load("images\\heart.png"), (40 * len(lives) + 5, 5)))
         ui.append(lives[len(lives) - 1])
     if(player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
         Game.inGame = False
@@ -78,7 +80,7 @@ def update(time : int):
 def getGameElements():
     finalGameElements = []
     for gameElement in gameElements:
-        finalGameElements.append(GameElement.GameElement(gameElement.surface, (gameElement.pos[0] - camera[0], gameElement.pos[1] - camera[1])))
+        finalGameElements.append(GameElement(gameElement.surface, (gameElement.pos[0] - camera[0], gameElement.pos[1] - camera[1])))
     for uiElement in ui:
         finalGameElements.append(uiElement)
     return finalGameElements
