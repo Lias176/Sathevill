@@ -1,4 +1,4 @@
-import pygame, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree, Grass, House
+import pygame, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree, Grass, House, MonsterBaseEntry
 from GameElement import GameElement
 
 screen = None
