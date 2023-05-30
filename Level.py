@@ -1,103 +1,89 @@
 import Player, json, MenuManager, Game, pygame
-from Enemy import Enemy
 from GameElement import GameElement
 
-player = None
-currentSave = None
-screen = None
-gameElements = []
-lives = []
-ui = []
-camera = (0, 0)
+class Level:
+    def __init__(self, file : str):
+        self.player = Player.Player()
+        self.entities = []
+        self.entities.append(self.player)
+        self.saveFilePath = file
+        self.maxLives = 3
+        self.lives = []
+        self.ui = []
+        self.cameraPos = (0, 0)
+        try:
+            saveFile = open(self.saveFilePath, "r")
+            save = json.loads(saveFile.read())
+            self.player.x = save["location"]["x"]
+            self.player.y = save["location"]["y"]
+            self.player.lives = save["lives"]
+        except:
+            self.player.x = 0
+            self.player.y = 0
+            self.player.lives = self.maxLives
 
-def init(initScreen : pygame.Surface):
-    global screen
-    screen = initScreen
 
-def keyPressed(key : int):
-    match(key):
-        case pygame.K_ESCAPE:
-            pause(True)
-
-def loadSave(file : str):
-    global player, currentSave
-    MenuManager.setMenu(None)
-    Game.inGame = True
-    player = Player.Player()
-    gameElements.append(player)
-    enemy = Enemy()
-    enemy.pos = (250, 250)
-    gameElements.append(enemy)
-    currentSave = file
-    try:
-        saveFile = open(file)
-        save = json.loads(saveFile.read())
-        player.x = save["location"]["x"]
-        player.y = save["location"]["y"]
-        player.lives = save["lives"]
-    except:
-        player.x = 0
-        player.y = 0
-        player.lives = 3
-    if(player.lives <= 0):
-        respawn()
-
-def leaveGame():
-    save()
-    global gameElements, player, lives
-    Game.inGame = False
-    player = None
-    gameElements = []
-    lives = []
-    MenuManager.setMenu(MenuManager.Menus.MainMenu)
-
-def save():
-    global currentSave
-    save = {
-        "location": {
-            "x": player.x,
-            "y": player.y
-        },
-        "lives": player.lives
-    }
-    saveFile = open(currentSave, "w")
-    json.dump(save, saveFile)
-
-def update(time : int):
-    global player, camera
-    player.update(time)
-    while(len(lives) > player.lives):
-        ui.remove(lives[len(lives) - 1])
-        lives.pop()
-    while(len(lives) < player.lives):
-        lives.append(GameElement(pygame.image.load("images\\heart.png"), (40 * len(lives) + 5, 5)))
-        ui.append(lives[len(lives) - 1])
-    if(player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
-        Game.inGame = False
-        MenuManager.setMenu(MenuManager.Menus.DeathMenu)
-    camera = (player.pos[0] - screen.get_width() / 2 + player.surface.get_width() / 2, player.pos[1] - screen.get_height() / 2 + player.surface.get_height() / 2)
-
-def getGameElements():
-    finalGameElements = []
-    for gameElement in gameElements:
-        finalGameElements.append(GameElement(gameElement.surface, (gameElement.pos[0] - camera[0], gameElement.pos[1] - camera[1])))
-    for uiElement in ui:
-        finalGameElements.append(uiElement)
-    return finalGameElements
-
-def pause(pause : bool):
-    if(pause):
-        Game.inGame = False
-        MenuManager.setMenu(MenuManager.Menus.PauseMenu)
-    else:
-        Game.inGame = True
+    def join(self):
         MenuManager.setMenu(None)
+        Game.inGame = True
+        if(self.player.lives <= 0):
+            self.respawn()
 
-def respawn():
-    global player
-    player.x = 0
-    player.y = 0
-    player.isAlive = True
-    player.lives = 3
-    MenuManager.setMenu(None)
-    Game.inGame = True
+    def save(self):
+        save = {
+            "location": {
+                "x": self.player.x,
+                "y": self.player.y
+            },
+            "lives": self.player.lives
+        }
+        saveFile = open(self.saveFilePath, "w")
+        json.dumps(save, saveFile)
+        saveFile.close()
+
+    def leave(self):
+        self.save()
+        Game.inGame = False
+        MenuManager.setMenu(MenuManager.Menus.MainMenu)
+
+    def pause(self, pause : bool):
+        if(pause):
+            Game.inGame = False
+            MenuManager.setMenu(MenuManager.Menus.PauseMenu)
+        else:
+            Game.inGame = True
+            MenuManager.setMenu(None)
+
+    def keyPressed(self, key : int):
+        match(key):
+            case pygame.K_ESCAPE:
+                self.pause(True)
+
+    def update(self, time : int):
+        self.player.update(time)
+        while(len(self.lives) > self.player.lives):
+            self.ui.remove(self.lives[len(self.lives) - 1])
+            self.lives.pop()
+        while(len(self.lives) < self.player.lives):
+            self.lives.append(GameElement(pygame.image.load("images\\heart.png"), (40 * len(self.lives) + 5, 5)))
+            self.ui.append(self.lives[len(self.lives) - 1])
+        if(self.player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
+            Game.inGame = False
+            MenuManager.setMenu(MenuManager.Menus.DeathMenu)
+        self.cameraPos = (self.player.pos[0] - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos[1] - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
+
+    def getGameElements(self) -> list[GameElement]:
+        offsetGameElements : list[GameElement] = []
+        for entity in self.entities:
+            offsetGameElements.append(GameElement(entity.surface, (entity.pos[0] - self.cameraPos[0], entity.pos[1] - self.cameraPos[1])))
+        for uiElement in self.ui:
+            offsetGameElements.append(uiElement)
+        return offsetGameElements
+    
+    def respawn(self):
+        self.player.x = 0
+        self.player.y = 0
+        self.player.isAlive = True
+        self.player.lives = self.maxLives
+        MenuManager.setMenu(None)
+        Game.inGame = True

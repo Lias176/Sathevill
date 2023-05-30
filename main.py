@@ -1,4 +1,4 @@
-import sys, pygame, MenuManager, Button, os, Game, LevelCreator, Level
+import sys, pygame, MenuManager, os, Game
 
 if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
     os.mkdir(os.path.expanduser("~\\sathevill"))
@@ -8,10 +8,7 @@ pygame.init()
 screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
 clock = pygame.time.Clock()
 
-MenuManager.init(screen)
-Button.init(screen)
-Level.init(screen)
-LevelCreator.init(screen)
+Game.init(screen)
 
 MenuManager.setMenu(MenuManager.Menus.MainMenu)
 

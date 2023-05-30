@@ -1,7 +1,13 @@
-import Level, MenuManager, LevelCreator, Button
+import Level, MenuManager, LevelCreator, Button, pygame
 
 inGame = False
+currentLevel : Level.Level = None
 inLevelEditor = False
+screen : pygame.Surface = None
+
+def init(initScreen : pygame.Surface):
+    global screen
+    screen = initScreen
 
 def mouseClicked(button : int):
     if(inLevelEditor):
@@ -10,21 +16,21 @@ def mouseClicked(button : int):
 
 def update(time : int):
     if(inGame):
-        Level.update(time)
+        currentLevel.update(time)
     elif(inLevelEditor):
         LevelCreator.update()
 
 def getGameElements():
-    if(inGame):
-        return Level.getGameElements()
+    if(inGame and currentLevel != None):
+        return currentLevel.getGameElements()
     elif(inLevelEditor):
         return LevelCreator.getGameElements()
     else:
         return MenuManager.getGameElements()
 
 def keyPressed(key : int):
-    if(inGame):
-        Level.keyPressed(key)
+    if(inGame and currentLevel != None):
+        currentLevel.keyPressed(key)
     elif(inLevelEditor):
         LevelCreator.keyPressed(key)
     else:

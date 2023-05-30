@@ -1,7 +1,6 @@
-import pygame, json, math, Game, MenuManager, LevelObject, SchokoDrink, Palm, Tree, Grass, House, MonsterBaseEntry
+import pygame, json, math, Game, MenuManager, LevelObject, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2
 from GameElement import GameElement
 
-screen = None
 removeObject = None
 levelObjects = []
 ui = []
@@ -14,17 +13,13 @@ rightDownCamPos = (0, 0)
 selectObjectScrollOffset = 0
 selectObjectPanelHeight = 0
 
-def init(initScreen : pygame.Surface):
-    global screen
-    screen = initScreen
-
 def openLevelEditor():
     global levelObjects, ui, selectObjectBgPanel, removeObject, selectObjectPanelHeight
     Game.inLevelEditor = True
     MenuManager.setMenu(None)
     ui = []
     levelObjects = []
-    selectObjectBgPanel = GameElement(pygame.Surface((screen.get_width() / 5, screen.get_height())), (0, 0))
+    selectObjectBgPanel = GameElement(pygame.Surface((Game.screen.get_width() / 5, Game.screen.get_height())), (0, 0))
     selectObjectBgPanel.surface.fill((40, 40, 40))
     selectObjectBgPanel.surface.set_alpha(200)
     ui.append(selectObjectBgPanel)

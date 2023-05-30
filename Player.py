@@ -1,9 +1,9 @@
-import pygame, GameElement, math, Level
+import pygame, GameElement, math, Level, Game
 from threading import Timer
 
 class Player(GameElement.GameElement):
     def __init__(self):
-        GameElement.GameElement.__init__(self, pygame.image.load("images\\player.png"), (0, 0))
+        GameElement.GameElement.__init__(self, pygame.image.load("images\\player\\front.png"), (0, 0))
         self.speed = 1
         self.lives = 3
         self.isAlive = True
@@ -24,13 +24,13 @@ class Player(GameElement.GameElement):
 
         self.pos = (math.floor(self.x), math.floor(self.y))
 
-        for gameElement in Level.gameElements:
+        for entity in Game.currentLevel.entities:
             try:
-                gameElement.damage
+                entity.damage
             except:
                 continue
-            if(pygame.Rect(self.pos[0], self.pos[1], self.surface.get_width(), self.surface.get_height()).colliderect(pygame.Rect(gameElement.pos[0], gameElement.pos[1], gameElement.surface.get_width(), gameElement.surface.get_height())) and self.lives > 0 and self.invincible == False):
-                self.takeDamage(gameElement.damage) 
+            if(pygame.Rect(self.pos[0], self.pos[1], self.surface.get_width(), self.surface.get_height()).colliderect(pygame.Rect(entity.pos[0], entity.pos[1], entity.surface.get_width(), entity.surface.get_height())) and self.lives > 0 and self.invincible == False):
+                self.takeDamage(entity.damage) 
                 if(self.lives < 0):
                     self.lives = 0
                 break

@@ -12,20 +12,15 @@ class Menus(Enum):
     DeathMenu = 4,
     LevelCreatorMenu = 5
 
-screen = None
-buttons = []
+buttons : list[Button] = []
 currentMenu = None
-
-def init(initScreen : pygame.Surface):
-    global screen
-    screen = initScreen
 
 def keyPressed(key : int):
     match key:
         case pygame.K_ESCAPE:
             match(currentMenu):
                 case Menus.PauseMenu:
-                    Level.pause(False)
+                    Game.currentLevel.pause(False)
                 case Menus.LevelCreatorMenu:
                     LevelCreator.openMenu(False)
                 
@@ -102,7 +97,8 @@ def playMenu_backButtonOnClick():
 
 def playMenu_saveButtonOnClick(saveNumber : int):
     saveFile = os.path.expanduser("~\\sathevill\\save" + str(saveNumber) + ".json")
-    Level.loadSave(saveFile)
+    Game.currentLevel = Level.Level(saveFile)
+    Game.currentLevel.join()
 
 # OptionsMenu
 def optionsMenu_backButtonOnClick():
@@ -110,19 +106,19 @@ def optionsMenu_backButtonOnClick():
 
 # PauseMenu
 def pauseMenu_continueButtonOnClick():
-    Level.pause(False)
+    Game.currentLevel.pause(False)
 
 def pauseMenu_optionsButtonOnClick():
     setMenu(Menus.OptionsMenu)
 
 def pauseMenu_backToMainMenuOnClick():
-    Level.leaveGame()
+    Game.currentLevel.leave()
 
 def deathMenu_backToMainMenuOnClick():
-    Level.leaveGame()
+    Game.currentLevel.leave()
 
 def deathMenu_respawnOnClick():
-    Level.respawn()
+    Game.currentLevel.respawn()
 
 #LevelCreatorMenu
 def levelCreatorMenu_backToMainMenuOnClick():

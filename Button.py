@@ -1,14 +1,8 @@
-import pygame
+import pygame, Game
 from enum import Enum
 from GameElement import GameElement
 
-screen = None
-
 buttons = []
-
-def init(initScreen : pygame.Surface):
-    global screen
-    screen = initScreen
 
 class Button:
     def __init__(self, text : str, font : pygame.font, fontColor : str, bgColor : str, rect : pygame.Rect, offset : Enum, onClick : callable):
@@ -16,7 +10,7 @@ class Button:
         if(offset == PositionOffset.TopLeft):
             self.bgGameElement = GameElement(pygame.Surface((rect.width, rect.height)), (rect.x, rect.y))
         elif(offset == PositionOffset.CenterScreen):
-            self.bgGameElement = GameElement(pygame.Surface((rect.width, rect.height)), (screen.get_width() / 2 - rect.width / 2 - rect.x, (screen.get_height() / 2) - (rect.height / 2) - rect.y))
+            self.bgGameElement = GameElement(pygame.Surface((rect.width, rect.height)), (Game.screen.get_width() / 2 - rect.width / 2 - rect.x, (Game.screen.get_height() / 2) - (rect.height / 2) - rect.y))
         self.bgGameElement.surface.fill(bgColor)
         fontSurface = font.render(text, True, fontColor)
         self.fontGameElement = GameElement(fontSurface, (self.bgGameElement.pos[0] + (rect.width / 2 - fontSurface.get_width() / 2), self.bgGameElement.pos[1] + (rect.height / 2 - fontSurface.get_height() / 2)))
