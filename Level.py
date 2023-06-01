@@ -3,12 +3,17 @@ from Player import Player
 from Entity import Entity
 from Point import Point
 from io import TextIOWrapper
+import LevelObject
+
+def pointFromBlock(block: Point) -> Point:
+    return Point(block.x * 50, block.y * 50)
 
 class Level:
     def __init__(self, file: str):
         self.player: Player = Player()
         self.entities: list[Entity] = []
         self.entities.append(self.player)
+        self.levelObjects: list[LevelObject.LevelObject] = []
         self.saveFilePath: str = file
         self.cameraPos: Point = Point(0, 0)
         try:
@@ -22,7 +27,9 @@ class Level:
             self.player.x = 0
             self.player.y = 0
             self.player.health = self.player.maxHealth
-
+        levelFile: TextIOWrapper = open("level.json")
+        for levelObject in json.loads(levelFile.read()):
+            self.levelObjects.append(LevelObject.getClassById(levelObject[0])(pointFromBlock(Point.fromTuple(levelObject[1]))))
 
     def join(self):
         MenuManager.setMenu(None)
@@ -68,6 +75,8 @@ class Level:
         self.cameraPos = Point(self.player.pos.x - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos.y - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
 
     def render(self, screen : pygame.Surface):
+        for levelObject in self.levelObjects:
+            screen.blit(levelObject.surface, (levelObject.pos.x - self.cameraPos.x, levelObject.pos.y - self.cameraPos.y))
         for entity in self.entities:
             screen.blit(entity.surface, (entity.pos.x - self.cameraPos.x, entity.pos.y - self.cameraPos.y))
         for i in range(self.player.health):

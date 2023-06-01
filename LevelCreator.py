@@ -127,12 +127,14 @@ def saveToFile(path : str):
     levelFile = open(path, "w")
     level = []
     for levelObject in levelObjects:
-        level.append((levelObject.id, blockFromPoint(levelObject.pos)))
+        level.append((levelObject.id, blockFromPoint(levelObject.pos).asTuple()))
     json.dump(level, levelFile)
 
 def loadFile(file : str):
+    global levelObjects
     saveFile = open(file)
+    levelObjects = []
     for obj in json.loads(saveFile.read()):
-        levelObjects.append(LevelObject.getClassById(obj[0])((pointFromBlock(obj[1]))))
+        levelObjects.append(LevelObject.getClassById(obj[0])(pointFromBlock(Point.fromTuple(obj[1]))))
     MenuManager.setMenu(None)
     Game.state = Game.GameState.IN_LEVEL_CREATOR
