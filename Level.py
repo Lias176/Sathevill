@@ -38,7 +38,7 @@ class Level:
             "lives": self.player.lives
         }
         saveFile = open(self.saveFilePath, "w")
-        json.dumps(save, saveFile)
+        json.dump(save, saveFile)
         saveFile.close()
 
     def leave(self):
@@ -72,13 +72,12 @@ class Level:
             MenuManager.setMenu(MenuManager.Menus.DeathMenu)
         self.cameraPos = (self.player.pos[0] - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos[1] - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
 
-    def getGameElements(self) -> list[GameElement]:
+    def render(self, screen : pygame.Surface):
         offsetGameElements : list[GameElement] = []
         for entity in self.entities:
-            offsetGameElements.append(GameElement(entity.surface, (entity.pos[0] - self.cameraPos[0], entity.pos[1] - self.cameraPos[1])))
+            screen.blit(entity.surface, (entity.pos[0] - self.cameraPos[0], entity.pos[1] - self.cameraPos[1]))
         for uiElement in self.ui:
-            offsetGameElements.append(uiElement)
-        return offsetGameElements
+            screen.blit(uiElement.surface, uiElement.pos)
     
     def respawn(self):
         self.player.x = 0

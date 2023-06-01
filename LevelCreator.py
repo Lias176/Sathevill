@@ -48,15 +48,13 @@ def leaveLevelCreator():
     Game.inLevelEditor = False
     MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
-def getGameElements():
-    finalGameElements = []
+def render(screen : pygame.Surface):
     for levelObject in levelObjects:
-        finalGameElements.append(GameElement(levelObject.surface, (levelObject.pos[0] - camera[0], levelObject.pos[1] - camera[1])))
+        screen.blit(levelObject.surface, (levelObject.pos[0] - camera[0], levelObject.pos[1] - camera[1]))
     for uiElement in ui:
-        finalGameElements.append(uiElement)
+        screen.blit(uiElement.surface, uiElement.pos)
     for selectableObject in selectableObjects:
-        finalGameElements.append(GameElement(selectableObject.surface, (selectableObject.pos[0], selectableObject.pos[1] + selectObjectScrollOffset)))
-    return finalGameElements
+        screen.blit(selectableObject.surface, (selectableObject.pos[0], selectableObject.pos[1] + selectObjectScrollOffset))
 
 def blockFromPoint(point: tuple) -> tuple:
     return(math.floor(point[0] / 50), math.floor(point[1] / 50))

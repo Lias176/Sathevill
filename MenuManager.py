@@ -24,12 +24,10 @@ def keyPressed(key : int):
                 case Menus.LevelCreatorMenu:
                     LevelCreator.openMenu(False)
                 
-def getGameElements():
-    finalGameElements = []
+def render(screen : pygame.Surface):
     for button in buttons:
-        finalGameElements.append(button.bgGameElement)
-        finalGameElements.append(button.fontGameElement)
-    return finalGameElements
+        screen.blit(button.bgGameElement.surface, button.bgGameElement.pos)
+        screen.blit(button.fontGameElement.surface, button.fontGameElement.pos)
 
 def setMenu(menu):
     global currentMenu, buttons

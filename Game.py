@@ -20,13 +20,14 @@ def update(time : int):
     elif(inLevelEditor):
         LevelCreator.update()
 
-def getGameElements():
+def render(screen : pygame.Surface):
+    screen.fill("black")
     if(inGame and currentLevel != None):
-        return currentLevel.getGameElements()
+        currentLevel.render(screen)
     elif(inLevelEditor):
-        return LevelCreator.getGameElements()
+        LevelCreator.render(screen)
     else:
-        return MenuManager.getGameElements()
+        MenuManager.render(screen)
 
 def keyPressed(key : int):
     if(inGame and currentLevel != None):

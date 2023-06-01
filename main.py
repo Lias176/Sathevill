@@ -26,9 +26,7 @@ while True:
 
     Game.update(clock.get_time())
     
-    screen.fill("black")
-    for gameElement in Game.getGameElements():
-        screen.blit(gameElement.surface, gameElement.pos)
+    Game.render(screen)
 
     pygame.display.flip()
     clock.tick()
