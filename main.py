@@ -1,4 +1,5 @@
 import sys, pygame, MenuManager, os, Game
+from Point import Point
 
 if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
     os.mkdir(os.path.expanduser("~\\sathevill"))
@@ -18,7 +19,7 @@ while True:
             case pygame.QUIT:
                 sys.exit()
             case pygame.MOUSEBUTTONDOWN:
-                Game.mouseClicked(event.button)
+                Game.mouseClicked(event.button, Point.fromTuple(event.pos))
             case pygame.KEYDOWN:
                 Game.keyPressed(event.key)
             case pygame.MOUSEWHEEL:

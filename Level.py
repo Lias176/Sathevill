@@ -1,88 +1,79 @@
-import Player, json, MenuManager, Game, pygame
-from GameElement import GameElement
+import json, MenuManager, Game, pygame, TextureSurfaces
+from Player import Player
+from Entity import Entity
+from Point import Point
+from io import TextIOWrapper
 
 class Level:
-    def __init__(self, file : str):
-        self.player = Player.Player()
-        self.entities = []
+    def __init__(self, file: str):
+        self.player: Player = Player()
+        self.entities: list[Entity] = []
         self.entities.append(self.player)
-        self.saveFilePath = file
-        self.maxLives = 3
-        self.lives = []
-        self.ui = []
-        self.cameraPos = (0, 0)
+        self.saveFilePath: str = file
+        self.cameraPos: Point = Point(0, 0)
         try:
-            saveFile = open(self.saveFilePath, "r")
-            save = json.loads(saveFile.read())
+            saveFile: TextIOWrapper = open(self.saveFilePath, "r")
+            save: dict[str, any] = json.loads(saveFile.read())
             self.player.x = save["location"]["x"]
             self.player.y = save["location"]["y"]
-            self.player.lives = save["lives"]
+            self.player.health = save["health"]
+            saveFile.close()
         except:
             self.player.x = 0
             self.player.y = 0
-            self.player.lives = self.maxLives
+            self.player.health = self.player.maxHealth
 
 
     def join(self):
         MenuManager.setMenu(None)
-        Game.inGame = True
-        if(self.player.lives <= 0):
+        Game.state = Game.GameState.IN_LEVEL
+        if(self.player.health <= 0):
             self.respawn()
 
     def save(self):
-        save = {
+        save: dict[str, any] = {
             "location": {
                 "x": self.player.x,
                 "y": self.player.y
             },
-            "lives": self.player.lives
+            "health": self.player.health
         }
-        saveFile = open(self.saveFilePath, "w")
+        saveFile: TextIOWrapper = open(self.saveFilePath, "w")
         json.dump(save, saveFile)
         saveFile.close()
 
     def leave(self):
         self.save()
-        Game.inGame = False
+        Game.state = Game.GameState.IN_MENU
         MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
-    def pause(self, pause : bool):
+    def pause(self, pause: bool):
         if(pause):
-            Game.inGame = False
+            Game.state = Game.GameState.IN_MENU
             MenuManager.setMenu(MenuManager.Menus.PauseMenu)
         else:
-            Game.inGame = True
+            Game.state = Game.GameState.IN_LEVEL
             MenuManager.setMenu(None)
 
-    def keyPressed(self, key : int):
+    def keyPressed(self, key: int):
         match(key):
             case pygame.K_ESCAPE:
                 self.pause(True)
 
-    def update(self, time : int):
+    def update(self, time: int):
         self.player.update(time)
-        while(len(self.lives) > self.player.lives):
-            self.ui.remove(self.lives[len(self.lives) - 1])
-            self.lives.pop()
-        while(len(self.lives) < self.player.lives):
-            self.lives.append(GameElement(pygame.image.load("images\\heart.png"), (40 * len(self.lives) + 5, 5)))
-            self.ui.append(self.lives[len(self.lives) - 1])
         if(self.player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
-            Game.inGame = False
+            Game.state = Game.GameState.IN_MENU
             MenuManager.setMenu(MenuManager.Menus.DeathMenu)
-        self.cameraPos = (self.player.pos[0] - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos[1] - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
+        self.cameraPos = Point(self.player.pos.x - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos.y - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
 
     def render(self, screen : pygame.Surface):
-        offsetGameElements : list[GameElement] = []
         for entity in self.entities:
-            screen.blit(entity.surface, (entity.pos[0] - self.cameraPos[0], entity.pos[1] - self.cameraPos[1]))
-        for uiElement in self.ui:
-            screen.blit(uiElement.surface, uiElement.pos)
+            screen.blit(entity.surface, (entity.pos.x - self.cameraPos.x, entity.pos.y - self.cameraPos.y))
+        for i in range(self.player.health):
+            screen.blit(TextureSurfaces.HEART, (TextureSurfaces.HEART.get_width() * i + 2, 2))
     
     def respawn(self):
-        self.player.x = 0
-        self.player.y = 0
-        self.player.isAlive = True
-        self.player.lives = self.maxLives
+        self.player.respawn()
         MenuManager.setMenu(None)
-        Game.inGame = True
+        Game.state = Game.GameState.IN_LEVEL

@@ -1,9 +1,9 @@
 import pygame, json, math, Game, MenuManager, LevelObject, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2
-from GameElement import GameElement
+from GameObject import GameObject
+from Point import Point
 
-removeObject = None
+removeTool: GameObject = None
 levelObjects = []
-ui = []
 selectableObjects = []
 selectedObject = None
 selectObjectBgPanel = None
@@ -14,53 +14,49 @@ selectObjectScrollOffset = 0
 selectObjectPanelHeight = 0
 
 def openLevelEditor():
-    global levelObjects, ui, selectObjectBgPanel, removeObject, selectObjectPanelHeight
-    Game.inLevelEditor = True
+    global levelObjects, selectObjectBgPanel, removeTool, selectObjectPanelHeight
+    Game.state = Game.GameState.IN_LEVEL_CREATOR
     MenuManager.setMenu(None)
-    ui = []
     levelObjects = []
-    selectObjectBgPanel = GameElement(pygame.Surface((Game.screen.get_width() / 5, Game.screen.get_height())), (0, 0))
+    selectObjectBgPanel = GameObject(pygame.Surface((Game.screen.get_width() / 5, Game.screen.get_height())), Point(0, 0))
     selectObjectBgPanel.surface.fill((40, 40, 40))
     selectObjectBgPanel.surface.set_alpha(200)
-    ui.append(selectObjectBgPanel)
     curY = 50
     for obj in LevelObject.LevelObject.__subclasses__():
         object = obj((0, 0))
-        object.pos = (selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, curY)
+        object.pos = Point(selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, curY)
         selectableObjects.append(object)
         curY += object.surface.get_height() + 50
     removeImage = pygame.image.load("images\\remove.png")
-    removeObject = GameElement(removeImage, (selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
-    curY += removeObject.surface.get_height() + 50
+    removeTool = GameObject(removeImage, Point(selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
+    curY += removeTool.surface.get_height() + 50
     selectObjectPanelHeight = curY
-    selectableObjects.append(removeObject)
+    selectableObjects.append(removeTool)
 
 def leaveLevelCreator():
-    global levelObjects, ui, selectableObjects, selectedObject, selectObjectBgPanel, camera, rightDownCamPos, rightDownMousePos
+    global levelObjects, selectableObjects, selectedObject, selectObjectBgPanel, camera, rightDownCamPos, rightDownMousePos
     levelObjects = []
-    ui = []
     selectableObjects = []
     selectedObject = None
     selectObjectBgPanel = None
     camera = (0, 0)
     rightDownCamPos = (0, 0)
     rightDownMousePos = (0, 0)
-    Game.inLevelEditor = False
+    Game.state = Game.GameState.IN_MENU
     MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
 def render(screen : pygame.Surface):
     for levelObject in levelObjects:
-        screen.blit(levelObject.surface, (levelObject.pos[0] - camera[0], levelObject.pos[1] - camera[1]))
-    for uiElement in ui:
-        screen.blit(uiElement.surface, uiElement.pos)
+        screen.blit(levelObject.surface, (levelObject.pos.x - camera[0], levelObject.pos.y - camera[1]))
+    screen.blit(selectObjectBgPanel.surface, selectObjectBgPanel.pos.asTuple())
     for selectableObject in selectableObjects:
-        screen.blit(selectableObject.surface, (selectableObject.pos[0], selectableObject.pos[1] + selectObjectScrollOffset))
+        screen.blit(selectableObject.surface, (selectableObject.pos.x, selectableObject.pos.y + selectObjectScrollOffset))
 
-def blockFromPoint(point: tuple) -> tuple:
-    return(math.floor(point[0] / 50), math.floor(point[1] / 50))
+def blockFromPoint(point: Point) -> Point:
+    return Point(math.floor(point.x / 50), math.floor(point.y / 50))
 
-def pointFromBlock(block: tuple) -> tuple:
-    return(block[0] * 50, block[1] * 50)
+def pointFromBlock(block: Point) -> Point:
+    return Point(block.x * 50, block.y * 50)
 
 def update():
     mouse = pygame.mouse.get_pressed(3)
@@ -80,7 +76,7 @@ def mouseClicked(button : int):
     if(button == 1):
         if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos)):
             for selectableObj in selectableObjects:
-                rect = pygame.Rect((selectableObj.pos[0], selectableObj.pos[1] + selectObjectScrollOffset), (selectableObj.surface.get_width(), selectableObj.surface.get_height()))
+                rect = pygame.Rect((selectableObj.pos.x, selectableObj.pos.y + selectObjectScrollOffset), (selectableObj.surface.get_width(), selectableObj.surface.get_height()))
                 if(rect.collidepoint(mousePos)):
                     selectedObject = selectableObj
     elif(button == 3):
@@ -102,15 +98,15 @@ def mouseWheel(y : int):
 
 def leftDown():
     mousePos = pygame.mouse.get_pos()
-    worldMousePos = (mousePos[0] + camera[0], mousePos[1] + camera[1])
+    worldMousePos: Point = Point(mousePos[0] + camera[0], mousePos[1] + camera[1])
     if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos) == False and selectedObject != None):
         for levelObject in levelObjects:
             if(blockFromPoint(levelObject.pos) == blockFromPoint(worldMousePos)):
-                if(selectedObject.surface != removeObject.surface and levelObject.id == selectedObject.id):
+                if(selectedObject.surface != removeTool.surface and levelObject.id == selectedObject.id):
                     return
-                elif(selectedObject.surface == removeObject.surface or levelObject.layer == selectedObject.layer):
+                elif(selectedObject.surface == removeTool.surface or levelObject.layer == selectedObject.layer):
                     levelObjects.remove(levelObject)
-        if(selectedObject.surface == removeObject.surface):
+        if(selectedObject.surface == removeTool.surface):
             return
         levelObjects.append(type(selectedObject)(pointFromBlock(blockFromPoint(worldMousePos))))
 
@@ -121,10 +117,10 @@ def rightDown():
 
 def openMenu(open : bool):
     if(open):
-        Game.inLevelEditor = False
+        Game.state = Game.GameState.IN_MENU
         MenuManager.setMenu(MenuManager.Menus.LevelCreatorMenu)
     else:
-        Game.inLevelEditor = True
+        Game.state = Game.GameState.IN_LEVEL_CREATOR
         MenuManager.setMenu(None)
 
 def saveToFile(path : str):
@@ -139,4 +135,4 @@ def loadFile(file : str):
     for obj in json.loads(saveFile.read()):
         levelObjects.append(LevelObject.getClassById(obj[0])((pointFromBlock(obj[1]))))
     MenuManager.setMenu(None)
-    Game.inLevelEditor = True
+    Game.state = Game.GameState.IN_LEVEL_CREATOR

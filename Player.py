@@ -1,17 +1,15 @@
-import pygame, GameElement, math, Level, Game
+import pygame
 from threading import Timer
+from Entity import Entity
 
-class Player(GameElement.GameElement):
+class Player(Entity):
     def __init__(self):
-        GameElement.GameElement.__init__(self, pygame.image.load("images\\player\\front.png"), (0, 0))
-        self.speed = 1
-        self.lives = 3
-        self.isAlive = True
-        self.invincible = False
-        self.x = float(0)
-        self.y = float(0)
+        super().__init__("images\\player\\front.png")
+        self.invincible: bool = False
+        self.maxHealth = 3
+        self.health = self.maxHealth
 
-    def update(self, time : int):
+    def update(self, time: int):
         keys = pygame.key.get_pressed()
         if(keys[pygame.K_w] or keys[pygame.K_UP]):
             self.y -= self.speed * (self.speed / 2) * time
@@ -22,26 +20,19 @@ class Player(GameElement.GameElement):
         if(keys[pygame.K_a] or keys[pygame.K_LEFT]):
             self.x -= self.speed * (self.speed / 2) * time
 
-        self.pos = (math.floor(self.x), math.floor(self.y))
+        super().update()
 
-        for entity in Game.currentLevel.entities:
-            try:
-                entity.damage
-            except:
-                continue
-            if(pygame.Rect(self.pos[0], self.pos[1], self.surface.get_width(), self.surface.get_height()).colliderect(pygame.Rect(entity.pos[0], entity.pos[1], entity.surface.get_width(), entity.surface.get_height())) and self.lives > 0 and self.invincible == False):
-                self.takeDamage(entity.damage) 
-                if(self.lives < 0):
-                    self.lives = 0
-                break
-        if(self.lives <= 0): 
-            self.isAlive = False
-
-    def takeDamage(self, damageAmount : int):
-        self.lives -= damageAmount
+    def takeDamage(self, damageAmount: int):
+        super().takeDamage(damageAmount)
         self.invincible = True
         timer = Timer(2, self.removeInvincability)
         timer.start()
 
     def removeInvincability(self):
         self.invincible = False
+
+    def respawn(self):
+        self.x = 0
+        self.y = 0
+        self.isAlive = True
+        self.health = self.maxHealth
