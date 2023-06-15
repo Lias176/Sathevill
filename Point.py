@@ -11,3 +11,9 @@ class Point:
 
     def asTuple(self) -> tuple[int, int]:
         return (self.x, self.y)
+    
+    def toString(self) -> str:
+        return "x: " + str(self.x) + " y: " + str(self.y)
+    
+    def equals(self, p: Point) -> bool:
+        return self.x == p.x and self.y == p.y

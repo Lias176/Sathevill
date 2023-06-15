@@ -1,7 +1,8 @@
-import MenuManager, LevelCreator, Button, pygame
+import MenuManager, Button, pygame
 from Point import Point
 from Level import Level
 from enum import Enum
+from LevelCreator import LevelCreator
 
 class GameState(Enum):
     IN_LEVEL = 0
@@ -11,6 +12,7 @@ class GameState(Enum):
 state: GameState = GameState.IN_MENU
 currentLevel: Level = None
 screen: pygame.Surface = None
+currentLevelCreator: LevelCreator = None
 
 def init(initScreen : pygame.Surface):
     global screen
@@ -19,7 +21,7 @@ def init(initScreen : pygame.Surface):
 def mouseClicked(button: int, pos: Point):
     match state:
         case GameState.IN_LEVEL_CREATOR:
-            LevelCreator.mouseClicked(button)
+            currentLevelCreator.mousePressed(button, pos)
     Button.mouseClicked(button, pos)
 
 def update(time: int):
@@ -27,7 +29,7 @@ def update(time: int):
         case GameState.IN_LEVEL:
             currentLevel.update(time)
         case GameState.IN_LEVEL_CREATOR:
-            LevelCreator.update()
+            currentLevelCreator.update()
 
 def render(screen: pygame.Surface):
     screen.fill("black")
@@ -35,7 +37,7 @@ def render(screen: pygame.Surface):
         case GameState.IN_LEVEL:
             currentLevel.render(screen)
         case GameState.IN_LEVEL_CREATOR:
-            LevelCreator.render(screen)
+            currentLevelCreator.render(screen)
         case GameState.IN_MENU:
             MenuManager.render(screen)
 
@@ -44,11 +46,11 @@ def keyPressed(key: int):
         case GameState.IN_LEVEL:
             currentLevel.keyPressed(key)
         case GameState.IN_LEVEL_CREATOR:
-            LevelCreator.keyPressed(key)
+            currentLevelCreator.keyPressed(key)
         case GameState.IN_MENU:
             MenuManager.keyPressed(key)
 
 def mouseWheel(y: int):
     match state:
         case GameState.IN_LEVEL_CREATOR:
-            LevelCreator.mouseWheel(y)
+            currentLevelCreator.mouseWheel(y)

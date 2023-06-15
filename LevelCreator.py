@@ -1,140 +1,111 @@
-import pygame, json, math, Game, MenuManager, LevelObject, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2
+import pygame, json, math, Game, MenuManager, LevelObject, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils
 from GameObject import GameObject
 from Point import Point
+from LevelObjects.RemoveObject import RemoveObject
+from io import TextIOWrapper
+import threading
 
-removeTool: GameObject = None
-levelObjects = []
-selectableObjects = []
-selectedObject = None
-selectObjectBgPanel = None
-camera = (0, 0)
-rightDownMousePos = (0, 0)
-rightDownCamPos = (0, 0)
-selectObjectScrollOffset = 0
-selectObjectPanelHeight = 0
+class LevelCreator:
+    def __init__(self):
+        self.levelObjects: list[LevelObject.LevelObject] = []
+        self.selectObjectBgPanel: GameObject = GameObject(pygame.Surface((Game.screen.get_width() / 5, Game.screen.get_height())), Point(0, 0))
+        self.selectObjectBgPanel.surface.fill((40, 40, 40))
+        self.selectObjectBgPanel.surface.set_alpha(200)
+        self.selectObjectPanelYOffset: int = 50
+        self.selectedType: type[LevelObject.LevelObject] = None
+        self.rightDownMousePos: Point = Point(0, 0)
+        self.rightDownCamPos: Point = Point(0, 0)
+        self.cameraPos: Point = Point(0, 0)
+        self.selectableObjects: list[LevelObject.LevelObject] = []
+        for levelObjectClass in LevelObject.LevelObject.__subclasses__(): 
+            self.addToSelectPanel(levelObjectClass(Point(0, 0)))
+    
+    def addToSelectPanel(self, object: LevelObject.LevelObject):
+        object.pos = Point(self.selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, self.selectObjectPanelYOffset)
+        self.selectableObjects.append(object)
+        self.selectObjectPanelYOffset += object.surface.get_height() + 50
 
-def openLevelEditor():
-    global levelObjects, selectObjectBgPanel, removeTool, selectObjectPanelHeight
-    Game.state = Game.GameState.IN_LEVEL_CREATOR
-    MenuManager.setMenu(None)
-    levelObjects = []
-    selectObjectBgPanel = GameObject(pygame.Surface((Game.screen.get_width() / 5, Game.screen.get_height())), Point(0, 0))
-    selectObjectBgPanel.surface.fill((40, 40, 40))
-    selectObjectBgPanel.surface.set_alpha(200)
-    curY = 50
-    for obj in LevelObject.LevelObject.__subclasses__():
-        object = obj((0, 0))
-        object.pos = Point(selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, curY)
-        selectableObjects.append(object)
-        curY += object.surface.get_height() + 50
-    removeImage = pygame.image.load("images\\remove.png")
-    removeTool = GameObject(removeImage, Point(selectObjectBgPanel.surface.get_width() / 2 - removeImage.get_width() / 2, curY))
-    curY += removeTool.surface.get_height() + 50
-    selectObjectPanelHeight = curY
-    selectableObjects.append(removeTool)
+    def render(self, screen: pygame.Surface):
+        for levelObject in self.levelObjects:
+            screen.blit(levelObject.surface, (levelObject.pos.x - self.cameraPos.x, levelObject.pos.y - self.cameraPos.y))
+        screen.blit(self.selectObjectBgPanel.surface, self.selectObjectBgPanel.pos.asTuple())
+        for selectableObject in self.selectableObjects:
+            screen.blit(selectableObject.surface, selectableObject.pos.asTuple())
 
-def leaveLevelCreator():
-    global levelObjects, selectableObjects, selectedObject, selectObjectBgPanel, camera, rightDownCamPos, rightDownMousePos
-    levelObjects = []
-    selectableObjects = []
-    selectedObject = None
-    selectObjectBgPanel = None
-    camera = (0, 0)
-    rightDownCamPos = (0, 0)
-    rightDownMousePos = (0, 0)
-    Game.state = Game.GameState.IN_MENU
-    MenuManager.setMenu(MenuManager.Menus.MainMenu)
+    def update(self):
+        mouse: tuple[bool, bool, bool] = pygame.mouse.get_pressed(3)
+        if(mouse[0]):
+            self.leftHeld()
+        if(mouse[2]):
+            self.rightHeld()
 
-def render(screen : pygame.Surface):
-    for levelObject in levelObjects:
-        screen.blit(levelObject.surface, (levelObject.pos.x - camera[0], levelObject.pos.y - camera[1]))
-    screen.blit(selectObjectBgPanel.surface, selectObjectBgPanel.pos.asTuple())
-    for selectableObject in selectableObjects:
-        screen.blit(selectableObject.surface, (selectableObject.pos.x, selectableObject.pos.y + selectObjectScrollOffset))
-
-def blockFromPoint(point: Point) -> Point:
-    return Point(math.floor(point.x / 50), math.floor(point.y / 50))
-
-def pointFromBlock(block: Point) -> Point:
-    return Point(block.x * 50, block.y * 50)
-
-def update():
-    mouse = pygame.mouse.get_pressed(3)
-    if(mouse[0]):
-        leftDown()
-    elif(mouse[2]):
-        rightDown()
-
-def keyPressed(key : int):
-    match(key):
-        case pygame.K_ESCAPE:
-            openMenu(True)
-
-def mouseClicked(button : int):
-    global selectedObject, selectObjectBgPanel, rightDownMousePos, rightDownCamPos
-    mousePos = pygame.mouse.get_pos()
-    if(button == 1):
-        if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos)):
-            for selectableObj in selectableObjects:
-                rect = pygame.Rect((selectableObj.pos.x, selectableObj.pos.y + selectObjectScrollOffset), (selectableObj.surface.get_width(), selectableObj.surface.get_height()))
-                if(rect.collidepoint(mousePos)):
-                    selectedObject = selectableObj
-    elif(button == 3):
-        rightDownMousePos = mousePos
-        rightDownCamPos = camera
-
-def mouseWheel(y : int):
-    global selectObjectScrollOffset
-    mousePos = pygame.mouse.get_pos()
-    if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos)):
-        if(y > 0):
-            selectObjectScrollOffset += 20
-        else:
-            selectObjectScrollOffset -= 20
-        if(selectObjectScrollOffset > 0):
-            selectObjectScrollOffset = 0
-        elif(selectObjectScrollOffset < -selectObjectPanelHeight + selectObjectBgPanel.surface.get_height()):
-            selectObjectScrollOffset = -selectObjectPanelHeight + selectObjectBgPanel.surface.get_height()
-
-def leftDown():
-    mousePos = pygame.mouse.get_pos()
-    worldMousePos: Point = Point(mousePos[0] + camera[0], mousePos[1] + camera[1])
-    if(selectObjectBgPanel.surface.get_rect().collidepoint(mousePos) == False and selectedObject != None):
-        for levelObject in levelObjects:
-            if(blockFromPoint(levelObject.pos) == blockFromPoint(worldMousePos)):
-                if(selectedObject.surface != removeTool.surface and levelObject.id == selectedObject.id):
-                    return
-                elif(selectedObject.surface == removeTool.surface or levelObject.layer == selectedObject.layer):
-                    levelObjects.remove(levelObject)
-        if(selectedObject.surface == removeTool.surface):
+    def keyPressed(self, key: int):
+        match(key):
+            case pygame.K_ESCAPE:
+                self.openMenu(True)
+    
+    def mousePressed(self, button: int, pos: Point):
+        if(button == 1):
+            if(self.selectObjectBgPanel.collidepoint(pos)):
+                for selectableObject in self.selectableObjects:
+                    if(selectableObject.collidepoint(pos)):
+                        self.selectedType = type(selectableObject)
+                        break
+        elif(button == 3):
+            self.rightDownMousePos = pos
+            self.rightDownCamPos = self.cameraPos
+    
+    def mouseWheel(self, y: int):
+        mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
+        if(not self.selectObjectBgPanel.collidepoint(mousePos)):
             return
-        levelObjects.append(type(selectedObject)(pointFromBlock(blockFromPoint(worldMousePos))))
+        for selectableObject in self.selectableObjects:
+            selectableObject.pos.y += 20 if y > 0 else -20
+        # TODO set max and min scroll distance
 
-def rightDown():
-    global camera
-    mousePos = pygame.mouse.get_pos()
-    camera = (rightDownCamPos[0] + rightDownMousePos[0] - mousePos[0], rightDownCamPos[1] + rightDownMousePos[1] - mousePos[1])
+    def leftHeld(self):
+        mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
+        worldMousePos: Point = Point(mousePos.x + self.cameraPos.x, mousePos.y + self.cameraPos.y)
+        if(self.selectObjectBgPanel.collidepoint(mousePos) or self.selectedType == None):
+            return
+        for levelObject in self.levelObjects:
+            if(type(levelObject) == self.selectedType and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
+                return
+            if((levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))) and self.selectedType != RemoveObject):
+                continue
+            self.levelObjects.remove(levelObject)
+        if(self.selectedType == RemoveObject):
+            return
+        self.levelObjects.append(self.selectedType(CoordUtils.snapToLevelGrid(worldMousePos)))
 
-def openMenu(open : bool):
-    if(open):
-        Game.state = Game.GameState.IN_MENU
-        MenuManager.setMenu(MenuManager.Menus.LevelCreatorMenu)
-    else:
-        Game.state = Game.GameState.IN_LEVEL_CREATOR
-        MenuManager.setMenu(None)
+    def rightHeld(self):
+        mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
+        self.cameraPos = Point(self.rightDownCamPos.x + self.rightDownMousePos.x - mousePos.x, self.rightDownCamPos.y + self.rightDownMousePos.y - mousePos.y)
 
-def saveToFile(path : str):
-    levelFile = open(path, "w")
-    level = []
-    for levelObject in levelObjects:
-        level.append((levelObject.id, blockFromPoint(levelObject.pos).asTuple()))
-    json.dump(level, levelFile)
+    def openMenu(self, open: bool):
+        if(open):
+            Game.state = Game.state.IN_MENU
+            MenuManager.setMenu(MenuManager.Menus.LevelCreatorMenu)
+        else:
+            Game.state = Game.state.IN_LEVEL_CREATOR
+            MenuManager.setMenu(None)
 
-def loadFile(file : str):
-    global levelObjects
-    saveFile = open(file)
-    levelObjects = []
-    for obj in json.loads(saveFile.read()):
-        levelObjects.append(LevelObject.getClassById(obj[0])(pointFromBlock(Point.fromTuple(obj[1]))))
-    MenuManager.setMenu(None)
-    Game.state = Game.GameState.IN_LEVEL_CREATOR
+    def saveToFile(self, path: str):
+        level: dict[str, list[tuple[int, int]]] = {}
+        for levelObject in self.levelObjects:
+            if not levelObject.id in level:
+                level[levelObject.id]: list[tuple[int, int]] = []
+            level[levelObject.id].append(CoordUtils.blockFromPoint(levelObject.pos).asTuple())
+        levelFile: TextIOWrapper = open(path, "w")
+        json.dump(level, levelFile)
+        levelFile.close()
+
+    def loadFromFile(self, path: str):
+        self.levelObjects = []
+        levelFile: TextIOWrapper = open(path, "r")
+        level: dict[str, list[tuple[int, int]]] = json.loads(levelFile.read())
+        for id in level.keys():
+            objectType: type[LevelObject.LevelObject] = LevelObject.getClassById(id)
+            for pos in level[id]:
+                self.levelObjects.append(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+        self.openMenu(False)

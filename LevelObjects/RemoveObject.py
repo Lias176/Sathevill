@@ -1,10 +1,9 @@
 from LevelObject import LevelObject
 from Point import Point
 
-class House2(LevelObject):
-    id: str = "house2"
-    layer: int = 1
-    image: str = "images\\House2.png"
+class RemoveObject(LevelObject):
+    layer: int = 0
+    image: str = "images\\remove.png"
 
     def __init__(self, pos: Point):
         super().__init__(pos)

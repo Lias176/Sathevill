@@ -1,8 +1,9 @@
-import pygame, sys, functools, Game, os, LevelCreator, tkinter, Level
+import pygame, sys, functools, Game, os, tkinter, Level
 from enum import Enum
 from tkinter import filedialog
 from Button import Button
 from Button import PositionOffset
+from LevelCreator import LevelCreator
 
 class Menus(Enum):
     MainMenu = 0,
@@ -22,7 +23,7 @@ def keyPressed(key : int):
                 case Menus.PauseMenu:
                     Game.currentLevel.pause(False)
                 case Menus.LevelCreatorMenu:
-                    LevelCreator.openMenu(False)
+                    Game.currentLevelCreator.openMenu(False)
                 
 def render(screen : pygame.Surface):
     screen.fill(pygame.Color(15, 15, 15))
@@ -84,7 +85,9 @@ def mainMenu_optionsButtonOnClick():
     setMenu(Menus.OptionsMenu)
 
 def mainMenu_levelCreatorButtonOnClick():
-    LevelCreator.openLevelEditor()
+    Game.currentLevelCreator = LevelCreator()
+    Game.state = Game.GameState.IN_LEVEL_CREATOR
+    setMenu(None)
 
 def mainMenu_quitButtonOnClick():
     sys.exit()
@@ -120,19 +123,19 @@ def deathMenu_respawnOnClick():
 
 #LevelCreatorMenu
 def levelCreatorMenu_backToMainMenuOnClick():
-    LevelCreator.leaveLevelCreator()
+    Game.currentLevelCreator = None
 
 def levelCreatorMenu_backToLevelCreatorOnClick():
-    LevelCreator.openMenu(False)
+    Game.currentLevelCreator.openMenu(False)
 
 def levelCreatorMenu_saveLevelOnClick():
     root = tkinter.Tk()
     root.withdraw()
     filePath = filedialog.asksaveasfilename(filetypes=[("JSON File", ".json")], parent=root)
-    LevelCreator.saveToFile(filePath if filePath.endswith(".json") else filePath + ".json")
+    Game.currentLevelCreator.saveToFile(filePath if filePath.endswith(".json") else filePath + ".json")
 
 def levelCreatorMenu_loadLevelOnClick():
     root = tkinter.Tk()
     root.withdraw()
     filePath = filedialog.askopenfilename(filetypes=[("JSON File", ".json")], parent=root)
-    LevelCreator.loadFile(filePath)
+    Game.currentLevelCreator.loadFromFile(filePath)

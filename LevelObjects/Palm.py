@@ -1,9 +1,10 @@
-import LevelObject
+from LevelObject import LevelObject
+from Point import Point
 
-class Palm(LevelObject.LevelObject):
-    id = 1
-    layer = 1
+class Palm(LevelObject):
+    id: str = "palm"
+    layer: int = 1
+    image: str = "images\\palm.png"
 
-    def __init__(self, pos: tuple):
-        self.image = "images\\palm.png"
-        LevelObject.LevelObject.__init__(self, pos)
+    def __init__(self, pos: Point):
+        super().__init__(pos)

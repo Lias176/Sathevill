@@ -1,12 +1,8 @@
-import json, MenuManager, Game, pygame, TextureSurfaces
+import json, MenuManager, Game, pygame, TextureSurfaces, LevelObject, CoordUtils
 from Player import Player
 from Entity import Entity
 from Point import Point
 from io import TextIOWrapper
-import LevelObject
-
-def pointFromBlock(block: Point) -> Point:
-    return Point(block.x * 50, block.y * 50)
 
 class Level:
     def __init__(self, file: str):
@@ -27,9 +23,12 @@ class Level:
             self.player.x = 0
             self.player.y = 0
             self.player.health = self.player.maxHealth
-        levelFile: TextIOWrapper = open("level.json")
-        for levelObject in json.loads(levelFile.read()):
-            self.levelObjects.append(LevelObject.getClassById(levelObject[0])(pointFromBlock(Point.fromTuple(levelObject[1]))))
+        levelFile: TextIOWrapper = open("level.json", "r")
+        level: dict[str, list[tuple[int, int]]] = json.loads(levelFile.read())
+        for id in level.keys():
+            objectType: type[LevelObject.LevelObject] = LevelObject.getClassById(id)
+            for pos in level[id]:
+                self.levelObjects.append(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
 
     def join(self):
         MenuManager.setMenu(None)
