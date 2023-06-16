@@ -69,9 +69,12 @@ class LevelCreator:
         if(self.selectObjectBgPanel.collidepoint(mousePos) or self.selectedType == None):
             return
         for levelObject in self.levelObjects:
+            if(self.selectedType == RemoveObject and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
+                self.levelObjects.remove(levelObject)
+                return
             if(type(levelObject) == self.selectedType and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
                 return
-            if((levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))) and self.selectedType != RemoveObject):
+            if((levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos)))):
                 continue
             self.levelObjects.remove(levelObject)
         if(self.selectedType == RemoveObject):
