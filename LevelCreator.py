@@ -61,7 +61,15 @@ class LevelCreator:
             return
         for selectableObject in self.selectableObjects:
             selectableObject.pos.y += 20 if y > 0 else -20
-        # TODO set max and min scroll distance
+        if(self.selectableObjects[0].pos.y > 50):
+            offset: int = 50 - self.selectableObjects[0].pos.y
+            for selectableObject in self.selectableObjects:
+                selectableObject.pos.y += offset
+        maxOffset: int = Game.screen.get_height() - self.selectableObjects[-1].surface.get_height() - 50
+        if self.selectableObjects[-1].pos.y < maxOffset:
+            offset: int = maxOffset - self.selectableObjects[-1].pos.y
+            for selectableObject in self.selectableObjects:
+                selectableObject.pos.y += offset
 
     def leftHeld(self):
         mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
