@@ -1,9 +1,8 @@
-import pygame, json, math, Game, MenuManager, LevelObject, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils
+import pygame, json, math, Game, MenuManager, LevelObject, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3
 from GameObject import GameObject
 from Point import Point
 from LevelObjects.RemoveObject import RemoveObject
 from io import TextIOWrapper
-import threading
 
 class LevelCreator:
     def __init__(self):
@@ -82,7 +81,7 @@ class LevelCreator:
                 return
             if(type(levelObject) == self.selectedType and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
                 return
-            if((levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos)))):
+            if(levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
                 continue
             self.levelObjects.remove(levelObject)
         if(self.selectedType == RemoveObject):

@@ -124,6 +124,7 @@ def deathMenu_respawnOnClick():
 #LevelCreatorMenu
 def levelCreatorMenu_backToMainMenuOnClick():
     Game.currentLevelCreator = None
+    setMenu(Menus.MainMenu)
 
 def levelCreatorMenu_backToLevelCreatorOnClick():
     Game.currentLevelCreator.openMenu(False)
