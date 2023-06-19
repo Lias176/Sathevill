@@ -17,3 +17,9 @@ class Point:
     
     def equals(self, p: Point) -> bool:
         return self.x == p.x and self.y == p.y
+    
+    def reverseSign(self) -> Point:
+        return Point(-self.x, -self.y)
+    
+    def offset(self, offset: Point) -> Point:
+        return Point(self.x + offset.x, self.y + offset.y)

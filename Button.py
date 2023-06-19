@@ -16,12 +16,12 @@ class Button:
             self.bgObject: GameObject = GameObject(pygame.Surface((rect.width, rect.height)), Point(Game.screen.get_width() / 2 - rect.width / 2 + rect.x, Game.screen.get_height() / 2 - rect.height / 2 - rect.y))
         self.bgObject.surface.fill(bgColor)
         self.fontObject = GameObject(font.render(text, True, fontColor), Point(0, 0))
-        self.fontObject.pos = Point(self.bgObject.pos.x + (rect.width / 2 - self.fontObject.surface.get_width() / 2), self.bgObject.pos.y + (rect.height / 2 - self.fontObject.surface.get_height() / 2))
+        self.fontObject.pos = self.bgObject.pos.offset(Point(rect.width / 2 - self.fontObject.surface.get_width() / 2, rect.height / 2 - self.fontObject.surface.get_height() / 2))
         buttons.append(self)
 
     def render(self, screen: pygame.Surface):
-        screen.blit(self.bgObject.surface, self.bgObject.pos.asTuple())
-        screen.blit(self.fontObject.surface, self.fontObject.pos.asTuple())
+        self.bgObject.render(screen)
+        self.fontObject.render(screen)
 
     def remove(self):
         buttons.remove(self)

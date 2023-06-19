@@ -1,4 +1,4 @@
-import json, MenuManager, Game, pygame, TextureSurfaces, CoordUtils
+import json, MenuManager, Game, pygame, Textures, CoordUtils
 from Player import Player
 from Entity import Entity
 from Point import Point
@@ -76,11 +76,11 @@ class Level:
 
     def render(self, screen : pygame.Surface):
         for levelObject in self.levelObjects:
-            screen.blit(levelObject.surface, (levelObject.pos.x - self.cameraPos.x, levelObject.pos.y - self.cameraPos.y))
+            levelObject.renderOffset(screen, self.cameraPos.reverseSign())
         for entity in self.entities:
-            screen.blit(entity.surface, (entity.pos.x - self.cameraPos.x, entity.pos.y - self.cameraPos.y))
+            entity.renderOffset(screen, self.cameraPos.reverseSign())
         for i in range(self.player.health):
-            screen.blit(TextureSurfaces.HEART, (TextureSurfaces.HEART.get_width() * i + 2, 2))
+            Textures.HEART.renderAt(screen, Point(Textures.HEART.surface.get_width() * i + 2, 2))
     
     def respawn(self):
         self.player.respawn()
