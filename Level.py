@@ -1,15 +1,16 @@
-import json, MenuManager, Game, pygame, TextureSurfaces, LevelObject, CoordUtils
+import json, MenuManager, Game, pygame, TextureSurfaces, CoordUtils
 from Player import Player
 from Entity import Entity
 from Point import Point
 from io import TextIOWrapper
+from LevelObject import LevelObject
 
 class Level:
     def __init__(self, file: str):
         self.player: Player = Player()
         self.entities: list[Entity] = []
         self.entities.append(self.player)
-        self.levelObjects: list[LevelObject.LevelObject] = []
+        self.levelObjects: list[LevelObject] = []
         self.saveFilePath: str = file
         self.cameraPos: Point = Point(0, 0)
         try:
@@ -26,7 +27,7 @@ class Level:
         levelFile: TextIOWrapper = open("level.json", "r")
         level: dict[str, list[tuple[int, int]]] = json.loads(levelFile.read())
         for id in level.keys():
-            objectType: type[LevelObject.LevelObject] = LevelObject.getClassById(id)
+            objectType: type[LevelObject] = LevelObject.getClassById(id)
             for pos in level[id]:
                 self.levelObjects.append(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
 

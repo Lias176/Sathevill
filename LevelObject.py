@@ -1,3 +1,4 @@
+from __future__ import annotations
 import pygame
 from GameObject import GameObject
 from Point import Point
@@ -8,10 +9,10 @@ class LevelObject(GameObject):
     id: str = ""
 
     def __init__(self, pos: Point):
-        super().__init__(pygame.image.load(self.image), pos)
+        super().__init__(pygame.image.load(self.image).convert_alpha(), pos)
 
-#TODO optimise
-def getClassById(id: str):
-    for subclass in LevelObject.__subclasses__():
-        if(subclass.id == id):
-            return subclass
+    @staticmethod
+    def getClassById(id: str) -> type[LevelObject]:
+        for subclass in LevelObject.__subclasses__():
+            if(subclass.id == id):
+                return subclass
