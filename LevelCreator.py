@@ -1,32 +1,49 @@
-import pygame, json, math, Game, MenuManager, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3
+import pygame, json, Game, MenuManager, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3
 from GameObject import GameObject
 from Point import Point
-from LevelObjects.RemoveObject import RemoveObject
 from io import TextIOWrapper
 from LevelObject import LevelObject
+from LevelCreatorTool import LevelCreatorTool
+from LevelCreatorTool import LevelCreatorTools
 
 class LevelCreator:
     def __init__(self):
         self.levelObjects: list[LevelObject] = []
-        self.selectObjectBgPanel: GameObject = GameObject(pygame.Surface((Game.screen.get_width() / 5, Game.screen.get_height())), Point(0, 0))
-        self.selectObjectBgPanel.surface.fill((40, 40, 40))
-        self.selectObjectBgPanel.surface.set_alpha(200)
+        self.selectObjectBGPanel: GameObject = GameObject(pygame.Surface((Game.screen.get_width() / 5, Game.screen.get_height())), Point(0, 0))
+        self.selectObjectBGPanel.surface.fill(pygame.Color(40, 40, 40))
+        self.selectObjectBGPanel.surface.set_alpha(200)
         self.selectableObjects: list[LevelObject] = []
-        self.selectedType: type[LevelObject] = None
         self.rightDownMousePos: Point = Point(0, 0)
         self.rightDownCamPos: Point = Point(0, 0)
         self.cameraPos: Point = Point(0, 0)
         for levelObjectClass in LevelObject.__subclasses__():
             object: levelObjectClass = levelObjectClass(Point(0, 0))
-            object.pos = Point(self.selectObjectBgPanel.surface.get_width() / 2 - object.surface.get_width() / 2, 50 if len(self.selectableObjects) == 0 else self.selectableObjects[-1].pos.y + self.selectableObjects[-1].surface.get_height() + 50)
+            object.pos = Point(self.selectObjectBGPanel.surface.get_width() / 2 - object.surface.get_width() / 2, 50 if len(self.selectableObjects) == 0 else self.selectableObjects[-1].pos.y + self.selectableObjects[-1].surface.get_height() + 50)
             self.selectableObjects.append(object)
+        self.selectedType: type[LevelObject] = type(self.selectableObjects[0])
+
+        self.placeTool: LevelCreatorTool = LevelCreatorTool(self.selectedType(Point(0, 0)).surface, LevelCreatorTools.PLACE)
+        self.removeTool: LevelCreatorTool = LevelCreatorTool(pygame.image.load("images\\remove.png"), LevelCreatorTools.REMOVE)
+        self.tools: list[LevelCreatorTool] = [ self.placeTool, self.removeTool ]
+        self.selectedTool: LevelCreatorTool = self.tools[0]
+        toolBGPanelWidth = 25
+        for tool in self.tools:
+            toolBGPanelWidth += tool.surface.get_width() + 25
+        self.toolBGPanel: GameObject = GameObject(pygame.Surface((toolBGPanelWidth, 100)), Point(Game.screen.get_width() - toolBGPanelWidth, 0))
+        self.toolBGPanel.surface.fill(pygame.Color(40, 40, 40))
+        self.selectObjectBGPanel.surface.set_alpha(200)
+        for i, tool in enumerate(self.tools):
+            tool.pos.x = self.toolBGPanel.pos.x + 25 if i == 0 else self.tools[i - 1].pos.x + self.tools[i - 1].surface.get_width() + 25
 
     def render(self, screen: pygame.Surface):
         for levelObject in self.levelObjects:
             levelObject.renderOffset(screen, self.cameraPos.reverseSign())
-        self.selectObjectBgPanel.render(screen)
+        self.selectObjectBGPanel.render(screen)
         for selectableObject in self.selectableObjects:
             selectableObject.render(screen)
+        self.toolBGPanel.render(screen)
+        for tool in self.tools:
+            tool.render(screen)
 
     def update(self):
         mouse: tuple[bool, bool, bool] = pygame.mouse.get_pressed(3)
@@ -42,7 +59,7 @@ class LevelCreator:
     
     def mousePressed(self, button: int, pos: Point):
         if(button == 1):
-            if(self.selectObjectBgPanel.collidepoint(pos)):
+            if(self.selectObjectBGPanel.collidepoint(pos)):
                 for selectableObject in self.selectableObjects:
                     if(selectableObject.collidepoint(pos)):
                         self.selectedType = type(selectableObject)
@@ -53,7 +70,7 @@ class LevelCreator:
     
     def mouseWheel(self, y: int):
         mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
-        if(not self.selectObjectBgPanel.collidepoint(mousePos)):
+        if(not self.selectObjectBGPanel.collidepoint(mousePos)):
             return
         for selectableObject in self.selectableObjects:
             selectableObject.pos.y += 20 if y > 0 else -20
@@ -70,10 +87,10 @@ class LevelCreator:
     def leftHeld(self):
         mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
         worldMousePos: Point = mousePos.offset(self.cameraPos)
-        if(self.selectObjectBgPanel.collidepoint(mousePos) or self.selectedType == None):
+        if(self.selectObjectBGPanel.collidepoint(mousePos) or self.selectedType == None):
             return
         for levelObject in self.levelObjects:
-            if(self.selectedType == RemoveObject and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
+            if(self.selectedTool.type == LevelCreatorTools.REMOVE and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
                 self.levelObjects.remove(levelObject)
                 return
             if(type(levelObject) == self.selectedType and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
@@ -81,7 +98,7 @@ class LevelCreator:
             if(levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
                 continue
             self.levelObjects.remove(levelObject)
-        if(self.selectedType == RemoveObject):
+        if(self.selectedTool.type == LevelCreatorTools.REMOVE):
             return
         self.levelObjects.append(self.selectedType(CoordUtils.snapToLevelGrid(worldMousePos)))
 
