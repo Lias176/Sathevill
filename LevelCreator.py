@@ -35,7 +35,10 @@ class LevelCreator:
         toolBGPanelWidth = 25
         for tool in self.tools:
             tool.removeBorder()
-            tool.resize(height = 50)
+            if(tool.surface.get_height() > tool.surface.get_width()):
+                tool.resize(height = 50)
+            else:
+                tool.resize(width = 50)
             toolBGPanelWidth += tool.surface.get_width() + 25
         self.toolBGPanel: GameObject = GameObject(pygame.Surface((toolBGPanelWidth, 75)), Point(Game.screen.get_width() - toolBGPanelWidth, 0))
         self.toolBGPanel.surface.fill(pygame.Color(40, 40, 40))
