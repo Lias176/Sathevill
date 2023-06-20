@@ -24,6 +24,11 @@ def mouseClicked(button: int, pos: Point):
             currentLevelCreator.mousePressed(button, pos)
     Button.mouseClicked(button, pos)
 
+def mouseUp(button: int):
+    match state:
+        case GameState.IN_LEVEL_CREATOR:
+            currentLevelCreator.mouseUp(button)
+
 def update(time: int):
     match state:
         case GameState.IN_LEVEL:

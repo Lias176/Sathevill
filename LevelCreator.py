@@ -8,6 +8,7 @@ from LevelCreatorTool import LevelCreatorTools
 
 class LevelCreator:
     def __init__(self):
+        self.firstMouseHold: bool = True
         self.levelObjects: list[LevelObject] = []
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
         self.selectObjectBGPanel: GameObject = GameObject(pygame.Surface((Game.screen.get_width() / 8, Game.screen.get_height())), Point(0, 0))
@@ -24,6 +25,8 @@ class LevelCreator:
             object.pos = Point(self.selectObjectBGPanel.surface.get_width() / 2 - object.surface.get_width() / 2, 50 if len(self.selectableObjects) == 0 else self.selectableObjects[-1].pos.y + self.selectableObjects[-1].surface.get_height() + 50)
             self.selectableObjects.append(object)
         self.selectedType: type[LevelObject] = type(self.selectableObjects[0])
+        self.placePreviewObject: LevelObject = self.selectedType(Point(0, 0))
+        self.placePreviewObject.surface.set_alpha(50)
 
         self.placeTool: LevelCreatorTool = LevelCreatorTool(self.selectedType(Point(0, 0)).surface, LevelCreatorTools.PLACE)
         self.removeTool: LevelCreatorTool = LevelCreatorTool(pygame.image.load("images\\remove.png"), LevelCreatorTools.REMOVE)
@@ -61,6 +64,8 @@ class LevelCreator:
         self.toolBGPanel.render(screen)
         for tool in self.tools:
             tool.render(screen)
+        if(self.canPlaceAt(Point.fromTuple(pygame.mouse.get_pos())) and self.selectedTool.type == LevelCreatorTools.PLACE):
+            self.placePreviewObject.renderOffset(screen, self.cameraPos.reverseSign())
 
     def update(self):
         mouse: tuple[bool, bool, bool] = pygame.mouse.get_pressed(3)
@@ -68,6 +73,7 @@ class LevelCreator:
             self.leftHeld()
         if(mouse[2]):
             self.rightHeld()
+        self.placePreviewObject.pos = CoordUtils.snapToLevelGrid(Point.fromTuple(pygame.mouse.get_pos()).offset(self.cameraPos))
 
     def keyPressed(self, key: int):
         match(key):
@@ -95,6 +101,8 @@ class LevelCreator:
                     self.selectedType = type(selectableObject)
                     self.placeTool.surface = self.selectedType(Point(0, 0)).surface
                     self.updateToolPanel()
+                    self.placePreviewObject = self.selectedType(Point(0, 0))
+                    self.placePreviewObject.surface.set_alpha(50)
                     break
             elif(self.toolBGPanel.collidepoint(pos)):
                 for tool in self.tools:
@@ -106,6 +114,11 @@ class LevelCreator:
         elif(button == 3):
             self.rightDownMousePos = pos
             self.rightDownCamPos = self.cameraPos
+
+    def mouseUp(self, button: int):
+        if(button == 1):
+            if(self.firstMouseHold):
+                self.firstMouseHold = False
     
     def mouseWheel(self, y: int):
         mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
@@ -123,10 +136,13 @@ class LevelCreator:
             for selectableObject in self.selectableObjects:
                 selectableObject.pos.y += offset
 
+    def canPlaceAt(self, pos: Point) -> bool:
+        return not self.selectObjectBGPanel.collidepoint(pos) and not self.toolBGPanel.collidepoint(pos)
+
     def leftHeld(self):
         mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
         worldMousePos: Point = mousePos.offset(self.cameraPos)
-        if(self.selectObjectBGPanel.collidepoint(mousePos) or self.toolBGPanel.collidepoint(mousePos) or self.selectedType == None):
+        if(not self.canPlaceAt(mousePos) or self.firstMouseHold):
             return
         for levelObject in self.levelObjects:
             if(self.selectedTool.type == LevelCreatorTools.REMOVE and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):

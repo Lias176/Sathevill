@@ -20,6 +20,8 @@ while True:
                 sys.exit()
             case pygame.MOUSEBUTTONDOWN:
                 Game.mouseClicked(event.button, Point.fromTuple(event.pos))
+            case pygame.MOUSEBUTTONUP:
+                Game.mouseUp(event.button)
             case pygame.KEYDOWN:
                 Game.keyPressed(event.key)
             case pygame.MOUSEWHEEL:
