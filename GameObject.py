@@ -11,15 +11,15 @@ class GameObject:
         self.renderAt(screen, self.pos)
 
     def renderAt(self, screen: pygame.Surface, pos: Point):
-        screen.blit(self.surface, pos.asTuple())
+        screen.blit(self.surface, pos.toTuple())
         if(self.borderSurface != None):
-            screen.blit(self.borderSurface, pos.asTuple())
+            screen.blit(self.borderSurface, pos.toTuple())
 
     def renderOffset(self, screen: pygame.Surface, offset: Point):
         self.renderAt(screen, self.pos.offset(offset))
 
     def collidepoint(self, point: Point) -> bool:
-        return pygame.Rect(self.pos.x, self.pos.y, self.surface.get_width(), self.surface.get_height()).collidepoint(point.asTuple())
+        return pygame.Rect(self.pos.x, self.pos.y, self.surface.get_width(), self.surface.get_height()).collidepoint(point.toTuple())
 
     def resize(self, width: int = None, height: int = None):
         if(width == None and height == None):
@@ -41,3 +41,6 @@ class GameObject:
 
     def removeBorder(self):
         self.borderSurface = None
+
+    def isPixelTransparent(self, pixel: Point) -> bool:
+        return pygame.Color(self.surface.get_at(pixel.toTuple())).a == 0

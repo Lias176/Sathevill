@@ -9,7 +9,7 @@ class Point:
     def fromTuple(point: tuple[int, int]) -> Point:
         return Point(point[0], point[1])
 
-    def asTuple(self) -> tuple[int, int]:
+    def toTuple(self) -> tuple[int, int]:
         return (self.x, self.y)
     
     def toString(self) -> str:

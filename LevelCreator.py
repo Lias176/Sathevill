@@ -144,18 +144,19 @@ class LevelCreator:
         worldMousePos: Point = mousePos.offset(self.cameraPos)
         if(not self.canPlaceAt(mousePos) or self.firstMouseHold):
             return
-        for levelObject in self.levelObjects:
-            if(self.selectedTool.type == LevelCreatorTools.REMOVE and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
+        if(self.selectedTool.type == LevelCreatorTools.PLACE):
+            for levelObject in self.levelObjects:
+                if(type(levelObject) == self.selectedType and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
+                    return
+                if(levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
+                    continue
                 self.removeLevelObject(levelObject)
-                return
-            if(type(levelObject) == self.selectedType and CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
-                return
-            if(levelObject.layer != self.selectedType.layer or not CoordUtils.blockFromPoint(levelObject.pos).equals(CoordUtils.blockFromPoint(worldMousePos))):
-                continue
-            self.removeLevelObject(levelObject)
-        if(self.selectedTool.type == LevelCreatorTools.REMOVE):
-            return
-        self.addLevelObject(self.selectedType(CoordUtils.snapToLevelGrid(worldMousePos)))
+            self.addLevelObject(self.selectedType(CoordUtils.snapToLevelGrid(worldMousePos)))
+        elif(self.selectedTool.type == LevelCreatorTools.REMOVE):
+            for levelObject in self.levelObjects:
+                if(levelObject.collidepoint(worldMousePos) and not levelObject.isPixelTransparent(worldMousePos.offset(levelObject.pos.reverseSign()))):
+                    self.removeLevelObject(levelObject)
+                    break
 
     def rightHeld(self):
         mousePos: Point = Point.fromTuple(pygame.mouse.get_pos())
@@ -174,7 +175,7 @@ class LevelCreator:
         for levelObject in self.levelObjects:
             if not levelObject.id in level:
                 level[levelObject.id]: list[tuple[int, int]] = []
-            level[levelObject.id].append(CoordUtils.blockFromPoint(levelObject.pos).asTuple())
+            level[levelObject.id].append(CoordUtils.blockFromPoint(levelObject.pos).toTuple())
         levelFile: TextIOWrapper = open(path, "w")
         json.dump(level, levelFile)
         levelFile.close()
