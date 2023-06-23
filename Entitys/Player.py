@@ -38,7 +38,7 @@ class Player(Entity):
             self.x += math.sin(math.radians(angle)) * self.speed * time
             self.y -= math.cos(math.radians(angle)) * self.speed * time
 
-        super().update()
+        super().update(time)
 
     def takeDamage(self, damageAmount: int):
         super().takeDamage(damageAmount)

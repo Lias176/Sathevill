@@ -1,5 +1,5 @@
 import json, MenuManager, Game, pygame, Textures, CoordUtils
-from Player import Player
+from Entitys.Player import Player
 from Entity import Entity
 from Point import Point
 from io import TextIOWrapper
