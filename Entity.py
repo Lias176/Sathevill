@@ -12,7 +12,7 @@ class Entity(GameObject):
         self.x: float = 0
         self.y: float = 0
 
-    def update(self):
+    def update(self, time: int):
         self.pos = Point(math.floor(self.x), math.floor(self.y))
 
     def takeDamage(self, damageAmount: int):

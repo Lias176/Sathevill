@@ -4,7 +4,7 @@ from Point import Point
 
 class Grass(LevelObject):
     layer: int = 0
-    image: str = "images\\grass.png"
+    image: str = "images\\grass0.png"
     id: str = "grass"
 
     def __init__(self, pos: Point):
