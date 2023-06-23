@@ -5,7 +5,7 @@ from Point import Point
 class Entity(GameObject):
     def __init__(self, image: str):
         super().__init__(pygame.image.load(image), Point(0, 0))
-        self.speed: float = 1
+        self.speed: float = 0.4
         self.maxHealth: int = 1
         self.health: int = self.maxHealth
         self.isAlive: bool = True
