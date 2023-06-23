@@ -27,6 +27,7 @@ class Player(Entity):
         if(keys[pygame.K_a] or keys[pygame.K_LEFT]):
             directionPoint.x -= 1
 
+        angle: int = -1
         if not directionPoint.equals(Point(0, 0)):
             angle: int = 0
             if(directionPoint.x == 0):
@@ -42,8 +43,13 @@ class Player(Entity):
                     angle = 360 + angle
             self.x += math.sin(math.radians(angle)) * self.speed * time
             self.y -= math.cos(math.radians(angle)) * self.speed * time
-            self.setAnimation(angle, time)
-        else:
+
+        self.setAnimation(angle, time)
+
+        super().update(time)
+
+    def setAnimation(self, angle: int, time: int):
+        if(angle < 0):
             if(self.walkedLastFrame):
                 match(self.direction):
                     case Directions.UP:
@@ -56,10 +62,7 @@ class Player(Entity):
                         self.surface = Textures.PLAYER_LEFT.surface
             self.walkedLastFrame = False
             self.lastWalkAnimationUpdate = 0
-
-        super().update(time)
-
-    def setAnimation(self, angle: int, time: int):
+            return
         self.walkedLastFrame = True
         if(angle == 0):
             if(not self.direction == Directions.UP):
