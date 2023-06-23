@@ -1,14 +1,19 @@
-import pygame, math
+import pygame, math, Textures
 from threading import Timer
 from Entity import Entity
 from Point import Point
+from Directions import Directions
 
 class Player(Entity):
     def __init__(self):
-        super().__init__("images\\player\\front.png")
+        super().__init__(Textures.PLAYER_DOWN.surface)
         self.invincible: bool = False
-        self.maxHealth = 3
-        self.health = self.maxHealth
+        self.maxHealth: int = 3
+        self.health: int = self.maxHealth
+        self.lastWalkAnimationUpdate: int = 0
+        self.currentWalkAnimationFrame: int = 0
+        self.direction: Directions = Directions.DOWN
+        self.walkedLastFrame: bool = False
 
     def update(self, time: int):
         keys = pygame.key.get_pressed()
@@ -37,8 +42,65 @@ class Player(Entity):
                     angle = 360 + angle
             self.x += math.sin(math.radians(angle)) * self.speed * time
             self.y -= math.cos(math.radians(angle)) * self.speed * time
+            self.setAnimation(angle, time)
+        else:
+            if(self.walkedLastFrame):
+                match(self.direction):
+                    case Directions.UP:
+                        self.surface = Textures.PLAYER_UP.surface
+                    case Directions.RIGHT:
+                        self.surface = Textures.PLAYER_RIGHT.surface
+                    case Directions.DOWN:
+                        self.surface = Textures.PLAYER_DOWN.surface
+                    case Directions.LEFT:
+                        self.surface = Textures.PLAYER_LEFT.surface
+            self.walkedLastFrame = False
+            self.lastWalkAnimationUpdate = 0
 
         super().update(time)
+
+    def setAnimation(self, angle: int, time: int):
+        self.walkedLastFrame = True
+        if(angle == 0):
+            if(not self.direction == Directions.UP):
+                self.surface = Textures.PLAYER_WALK_UP_0.surface
+                self.direction = Directions.UP
+        elif(angle == 180):
+            if(not self.direction == Directions.DOWN):
+                self.surface = Textures.PLAYER_WALK_DOWN_0.surface
+                self.direction = Directions.DOWN
+        elif(angle < 180):
+            if(not self.direction == Directions.RIGHT):
+                self.surface = Textures.PLAYER_WALK_RIGHT_0.surface
+                self.direction = Directions.RIGHT
+        else:
+            if(not self.direction == Directions.LEFT):
+                self.surface = Textures.PLAYER_WALK_LEFT_0.surface
+                self.direction = Directions.LEFT
+
+        nextFrame: bool = False
+        if(self.lastWalkAnimationUpdate > 250):
+            self.lastWalkAnimationUpdate = self.lastWalkAnimationUpdate - 250
+            nextFrame = True
+        else:
+            self.lastWalkAnimationUpdate += time
+        if(not nextFrame):
+            return
+        
+        self.currentWalkAnimationFrame = 1 if self.currentWalkAnimationFrame == 0 else 0
+        match(self.direction):
+            case Directions.UP:
+                self.surface = Textures.PLAYER_WALK_UP_0.surface if self.currentWalkAnimationFrame == 1 else Textures.PLAYER_WALK_UP_1.surface
+                return
+            case Directions.RIGHT:
+                self.surface = Textures.PLAYER_WALK_RIGHT_0.surface if self.currentWalkAnimationFrame == 1 else Textures.PLAYER_WALK_RIGHT_1.surface
+                return
+            case Directions.DOWN:
+                self.surface = Textures.PLAYER_WALK_DOWN_0.surface if self.currentWalkAnimationFrame == 1 else Textures.PLAYER_WALK_DOWN_1.surface
+                return
+            case Directions.LEFT:
+                self.surface = Textures.PLAYER_WALK_LEFT_0.surface if self.currentWalkAnimationFrame == 1 else Textures.PLAYER_WALK_LEFT_1.surface
+                return
 
     def takeDamage(self, damageAmount: int):
         super().takeDamage(damageAmount)

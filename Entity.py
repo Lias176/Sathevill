@@ -3,9 +3,9 @@ from GameObject import GameObject
 from Point import Point
 
 class Entity(GameObject):
-    def __init__(self, image: str):
-        super().__init__(pygame.image.load(image), Point(0, 0))
-        self.speed: float = 0.4
+    def __init__(self, surface: pygame.Surface):
+        super().__init__(surface, Point(0, 0))
+        self.speed: float = 0.2
         self.maxHealth: int = 1
         self.health: int = self.maxHealth
         self.isAlive: bool = True
