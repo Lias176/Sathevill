@@ -3,6 +3,7 @@ from Point import Point
 from Level import Level
 from enum import Enum
 from LevelCreator import LevelCreator
+from Animation import Animation
 
 class GameState(Enum):
     IN_LEVEL = 0
@@ -35,6 +36,8 @@ def update(time: int):
             currentLevel.update(time)
         case GameState.IN_LEVEL_CREATOR:
             currentLevelCreator.update()
+    for animation in Animation.animations:
+        animation.update(time)
 
 def render(screen: pygame.Surface):
     screen.fill("black")
