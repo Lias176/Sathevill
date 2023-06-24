@@ -11,6 +11,7 @@ class Level:
         self.entities: list[Entity] = []
         self.entities.append(self.player)
         self.levelObjects: list[LevelObject] = []
+        self.layerLevelObjects: dict[int, list[LevelObject]] = {}
         self.saveFilePath: str = file
         self.cameraPos: Point = Point(0, 0)
         try:
@@ -29,7 +30,7 @@ class Level:
         for id in level.keys():
             objectType: type[LevelObject] = LevelObject.getClassById(id)
             for pos in level[id]:
-                self.levelObjects.append(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+                self.addLevelObject(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
 
     def join(self):
         MenuManager.setMenu(None)
@@ -75,12 +76,25 @@ class Level:
         self.cameraPos = Point(self.player.pos.x - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos.y - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
 
     def render(self, screen : pygame.Surface):
-        for levelObject in self.levelObjects:
-            levelObject.renderOffset(screen, self.cameraPos.reverseSign())
+        for i in self.layerLevelObjects:
+            for levelObject in self.layerLevelObjects[i]:
+                levelObject.renderOffset(screen, self.cameraPos.reverseSign())
         for entity in self.entities:
             entity.renderOffset(screen, self.cameraPos.reverseSign())
         for i in range(self.player.health):
             Textures.HEART.renderAt(screen, Point(Textures.HEART.surface.get_width() * i + 2, 2))
+
+    def addLevelObject(self, object: LevelObject):
+        self.levelObjects.append(object)
+        for i in range(object.layer + 1):
+            if i in self.layerLevelObjects:
+                continue
+            self.layerLevelObjects[i] = []
+        self.layerLevelObjects[object.layer].append(object)
+
+    def removeLevelObject(self, object: LevelObject):
+        self.levelObjects.remove(object)
+        self.layerLevelObjects[object.layer].remove(object)
     
     def respawn(self):
         self.player.respawn()

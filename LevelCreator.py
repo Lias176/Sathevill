@@ -51,13 +51,9 @@ class LevelCreator:
         self.selectedTool.addBoxBorder(pygame.Color(255, 255, 255))
 
     def render(self, screen: pygame.Surface):
-        i: int = 0
-        while True:
-            if not i in self.layerLevelObjects:
-                break
+        for i in self.layerLevelObjects:
             for levelObject in self.layerLevelObjects[i]:
                 levelObject.renderOffset(screen, self.cameraPos.reverseSign())
-            i += 1
         self.selectObjectBGPanel.render(screen)
         for selectableObject in self.selectableObjects:
             selectableObject.render(screen)
@@ -182,6 +178,7 @@ class LevelCreator:
 
     def loadFromFile(self, path: str):
         self.levelObjects = []
+        self.layerLevelObjects = {}
         levelFile: TextIOWrapper = open(path, "r")
         level: dict[str, list[tuple[int, int]]] = json.loads(levelFile.read())
         for id in level.keys():

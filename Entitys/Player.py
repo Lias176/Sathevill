@@ -7,16 +7,18 @@ from Directions import Directions
 
 class Player(Entity):
     def __init__(self):
+        self.WALK_UP_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_UP_0.surface, Textures.PLAYER_WALK_UP_1.surface ], 250)
+        self.WALK_RIGHT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_RIGHT_0.surface, Textures.PLAYER_WALK_RIGHT_1.surface ], 250)
+        self.WALK_DOWN_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_DOWN_0.surface, Textures.PLAYER_WALK_DOWN_1.surface ], 250)
+        self.WALK_LEFT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_LEFT_0.surface, Textures.PLAYER_WALK_LEFT_1.surface ], 250)
+
         super().__init__(Textures.PLAYER_DOWN.surface)
         self.invincible: bool = False
         self.maxHealth: int = 3
         self.health: int = self.maxHealth
         self.direction: Directions = Directions.DOWN
         self.movedLastFrame: bool = False
-        self.walkUpAnimation = Animation(self, [ Textures.PLAYER_WALK_UP_0.surface, Textures.PLAYER_WALK_UP_1.surface ], 250)
-        self.walkRightAnimation = Animation(self, [ Textures.PLAYER_WALK_RIGHT_0.surface, Textures.PLAYER_WALK_RIGHT_1.surface ], 250)
-        self.walkDownAnimation = Animation(self, [ Textures.PLAYER_WALK_DOWN_0.surface, Textures.PLAYER_WALK_DOWN_1.surface ], 250)
-        self.walkLeftAnimation = Animation(self, [ Textures.PLAYER_WALK_LEFT_0.surface, Textures.PLAYER_WALK_LEFT_1.surface ], 250)
+        self.walkAnimation: Animation = None
 
     def update(self, time: int):
         keys = pygame.key.get_pressed()
@@ -47,37 +49,36 @@ class Player(Entity):
             self.x += math.sin(math.radians(angle)) * self.speed * time
             self.y -= math.cos(math.radians(angle)) * self.speed * time
             if(angle == 0):
-                if(not self.walkUpAnimation.isRunning):
+                if(not self.walkAnimation == self.WALK_UP_ANIMATION):
                     self.direction = Directions.UP
-                    self.walkLeftAnimation.stop()
-                    self.walkDownAnimation.stop()
-                    self.walkRightAnimation.stop()
-                    self.walkUpAnimation.play()
+                    if(self.walkAnimation != None):
+                        self.walkAnimation.stop()
+                    self.walkAnimation = self.WALK_UP_ANIMATION
+                    self.walkAnimation.play()
             elif(angle == 180):
-                if(not self.walkDownAnimation.isRunning):
+                if(not self.walkAnimation == self.WALK_DOWN_ANIMATION):
                     self.direction = Directions.DOWN
-                    self.walkUpAnimation.stop()
-                    self.walkLeftAnimation.stop()
-                    self.walkRightAnimation.stop()
-                    self.walkDownAnimation.play()
+                    if(self.walkAnimation != None):
+                        self.walkAnimation.stop()
+                    self.walkAnimation = self.WALK_DOWN_ANIMATION
+                    self.walkAnimation.play()
             elif(angle < 180):
-                if(not self.walkRightAnimation.isRunning):
+                if(not self.walkAnimation == self.WALK_RIGHT_ANIMATION):
                     self.direction = Directions.RIGHT
-                    self.walkUpAnimation.stop()
-                    self.walkLeftAnimation.stop()
-                    self.walkDownAnimation.stop()
-                    self.walkRightAnimation.play()
-            elif(not self.walkLeftAnimation.isRunning):
+                    if(self.walkAnimation != None):
+                        self.walkAnimation.stop()
+                    self.walkAnimation = self.WALK_RIGHT_ANIMATION
+                    self.walkAnimation.play()
+            elif(not self.walkAnimation == self.WALK_LEFT_ANIMATION):
                 self.direction = Directions.LEFT
-                self.walkUpAnimation.stop()
-                self.walkDownAnimation.stop()
-                self.walkRightAnimation.stop()
-                self.walkLeftAnimation.play()
+                if(self.walkAnimation != None):
+                    self.walkAnimation.stop()
+                self.walkAnimation = self.WALK_LEFT_ANIMATION
+                self.walkAnimation.play()
         else:
-            self.walkUpAnimation.stop()
-            self.walkRightAnimation.stop()
-            self.walkDownAnimation.stop()
-            self.walkLeftAnimation.stop()
+            if(self.walkAnimation != None):
+                self.walkAnimation.stop()
+                self.walkAnimation = None
             if(self.movedLastFrame):
                 match(self.direction):
                     case Directions.UP:
