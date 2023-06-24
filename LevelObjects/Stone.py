@@ -8,5 +8,6 @@ class Stone(LevelObject):
     id: str = "stone"
 
     def __init__(self, pos: Point):
-        self.image = "images\\stone" + str(random.randint(0, 3)) + ".png"
+        self.image = "images\\stone" + str(random.randint(0, 2)) + ".png"
         super().__init__(pos)
+        self.collisionRect = self.surface.get_rect()

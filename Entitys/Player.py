@@ -1,4 +1,4 @@
-import pygame, math, Textures
+import pygame, math, Textures, Game
 from threading import Timer
 from Entity import Entity
 from Point import Point
@@ -46,8 +46,6 @@ class Player(Entity):
                     angle = 180 + math.degrees(math.atan(directionPoint.y / directionPoint.x))
                 if(angle < 0):
                     angle = 360 + angle
-            self.x += math.sin(math.radians(angle)) * self.speed * time
-            self.y -= math.cos(math.radians(angle)) * self.speed * time
             if(angle == 0):
                 if(not self.walkAnimation == self.WALK_UP_ANIMATION):
                     self.direction = Directions.UP
@@ -75,6 +73,29 @@ class Player(Entity):
                     self.walkAnimation.stop()
                 self.walkAnimation = self.WALK_LEFT_ANIMATION
                 self.walkAnimation.play()
+            x: int = math.sin(math.radians(angle)) * self.speed * time
+            y: int = -(math.cos(math.radians(angle)) * self.speed * time)
+
+            updatedX: bool = False
+            updatedY: bool = False
+            for levelObject in Game.currentLevel.levelObjects:
+                if(levelObject.collisionRect == None):
+                    continue
+                collisionRect: pygame.Rect = levelObject.getAbsoluteCollisionRect()
+                updatedXRect: pygame.Rect = pygame.Rect(self.x + x, self.y + self.surface.get_height(), self.surface.get_width(), 1)
+                updatedYRect: pygame.Rect = pygame.Rect(self.x, self.y + self.surface.get_height() + y, self.surface.get_width(), 1)
+                if(collisionRect.colliderect(updatedXRect)):
+                    self.x = collisionRect.left - self.surface.get_width() if x > 0 else collisionRect.right
+                    updatedX = True
+                elif(collisionRect.colliderect(updatedYRect)):
+                    self.y = (collisionRect.top - 1 if y > 0 else collisionRect.bottom) - self.surface.get_height()
+                    updatedY = True
+                if(updatedX or updatedY):
+                    break
+            if(not updatedX):
+                self.x += x
+            if(not updatedY):
+                self.y += y
         else:
             if(self.walkAnimation != None):
                 self.walkAnimation.stop()

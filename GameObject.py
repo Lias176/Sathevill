@@ -18,8 +18,14 @@ class GameObject:
     def renderOffset(self, screen: pygame.Surface, offset: Point):
         self.renderAt(screen, self.pos.offset(offset))
 
+    def getRect(self) -> pygame.Rect:
+        return pygame.Rect(self.pos.x, self.pos.y, self.surface.get_width(), self.surface.get_height())
+
     def collidepoint(self, point: Point) -> bool:
-        return pygame.Rect(self.pos.x, self.pos.y, self.surface.get_width(), self.surface.get_height()).collidepoint(point.toTuple())
+        return self.getRect().collidepoint(point.toTuple())
+    
+    def colliderect(self, rect: pygame.Rect) -> bool:
+        return self.getRect().colliderect(rect)
 
     def resize(self, width: int = None, height: int = None):
         if(width == None and height == None):

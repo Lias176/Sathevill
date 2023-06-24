@@ -1,3 +1,4 @@
+import pygame
 from LevelObject import LevelObject
 from Point import Point
 
@@ -8,3 +9,4 @@ class House(LevelObject):
 
     def __init__(self, pos: Point):
         super().__init__(pos)
+        self.collisionRect = pygame.Rect(4, 71, 377, 247)
