@@ -9,4 +9,4 @@ class MonsterBaseEntry(LevelObject):
 
     def __init__(self, pos: Point):
         super().__init__(pos)
-        self.collisionRect = pygame.Rect(0, 105, 249, 139)
+        self.collisionRect = pygame.Rect(0, 105, 349, 139)

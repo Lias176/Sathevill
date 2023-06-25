@@ -2,8 +2,8 @@ import pygame, sys, functools, Game, os, tkinter, Level
 from enum import Enum
 from tkinter import filedialog
 from Button import Button
-from Button import PositionOffset
 from LevelCreator import LevelCreator
+from Point import Point
 
 class Menus(Enum):
     MainMenu = 0,
@@ -41,40 +41,40 @@ def setMenu(menu):
     match menu:
         case Menus.MainMenu:
             buttons = [
-                Button("Play", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 90, 400, 50), PositionOffset.CENTER_SCREEN, mainMenu_playButtonOnClick),
-                Button("Options", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), PositionOffset.CENTER_SCREEN, mainMenu_optionsButtonOnClick),
-                Button("Level creator", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), PositionOffset.CENTER_SCREEN, mainMenu_levelCreatorButtonOnClick),
-                Button("Quit", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -90, 400, 50), PositionOffset.CENTER_SCREEN, mainMenu_quitButtonOnClick)
+                Button("Play", pygame.Rect(0, 90, 400, 50), mainMenu_playButtonOnClick),
+                Button("Options", pygame.Rect(0, 30, 400, 50), mainMenu_optionsButtonOnClick),
+                Button("Level creator", pygame.Rect(0, -30, 400, 50), mainMenu_levelCreatorButtonOnClick),
+                Button("Quit", pygame.Rect(0, -90, 400, 50), mainMenu_quitButtonOnClick)
             ]
         case Menus.OptionsMenu:
             buttons = [
-                Button("Back", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 0, 400, 50), PositionOffset.CENTER_SCREEN, optionsMenu_backButtonOnClick)
+                Button("Back", pygame.Rect(0, 0, 400, 50), optionsMenu_backButtonOnClick)
             ]
         case Menus.PlayMenu:
             buttons = [
-                Button("Back", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 150, 400, 50), PositionOffset.CENTER_SCREEN, playMenu_backButtonOnClick),
-                Button("Save 1", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 90, 400, 50), PositionOffset.CENTER_SCREEN, functools.partial(playMenu_saveButtonOnClick, 1)),
-                Button("Save 2", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), PositionOffset.CENTER_SCREEN, functools.partial(playMenu_saveButtonOnClick, 2)),
-                Button("Save 3", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), PositionOffset.CENTER_SCREEN, functools.partial(playMenu_saveButtonOnClick, 3)),
-                Button("Save 4", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -90, 400, 50), PositionOffset.CENTER_SCREEN, functools.partial(playMenu_saveButtonOnClick, 4)),
-                Button("Save 5", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -150, 400, 50), PositionOffset.CENTER_SCREEN, functools.partial(playMenu_saveButtonOnClick, 5))
+                Button("Back", pygame.Rect(0, 150, 400, 50), playMenu_backButtonOnClick),
+                Button("Save 1", pygame.Rect(0, 90, 400, 50), functools.partial(playMenu_saveButtonOnClick, 1)),
+                Button("Save 2", pygame.Rect(0, 30, 400, 50), functools.partial(playMenu_saveButtonOnClick, 2)),
+                Button("Save 3", pygame.Rect(0, -30, 400, 50), functools.partial(playMenu_saveButtonOnClick, 3)),
+                Button("Save 4", pygame.Rect(0, -90, 400, 50), functools.partial(playMenu_saveButtonOnClick, 4)),
+                Button("Save 5", pygame.Rect(0, -150, 400, 50), functools.partial(playMenu_saveButtonOnClick, 5))
             ]
         case Menus.PauseMenu:
             buttons = [
-                Button("Continue", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), PositionOffset.CENTER_SCREEN, pauseMenu_continueButtonOnClick),
-                Button("Back to Main Menu", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), PositionOffset.CENTER_SCREEN, pauseMenu_backToMainMenuOnClick)
+                Button("Continue", pygame.Rect(0, 30, 400, 50), pauseMenu_continueButtonOnClick),
+                Button("Back to Main Menu", pygame.Rect(0, -30, 400, 50), pauseMenu_backToMainMenuOnClick)
             ]
         case Menus.DeathMenu:
             buttons = [
-                Button("Respawn", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), PositionOffset.CENTER_SCREEN, deathMenu_respawnOnClick),
-                Button("Back to Main Menu", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), PositionOffset.CENTER_SCREEN, deathMenu_backToMainMenuOnClick)
+                Button("Respawn", pygame.Rect(0, 30, 400, 50), deathMenu_respawnOnClick),
+                Button("Back to Main Menu", pygame.Rect(0, -30, 400, 50), deathMenu_backToMainMenuOnClick)
             ]
         case Menus.LevelCreatorMenu:
             buttons = [
-                Button("Back to LevelCreator", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 90, 400, 50), PositionOffset.CENTER_SCREEN, levelCreatorMenu_backToLevelCreatorOnClick),
-                Button("Load Level", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, 30, 400, 50), PositionOffset.CENTER_SCREEN, levelCreatorMenu_loadLevelOnClick),
-                Button("Save Level", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -30, 400, 50), PositionOffset.CENTER_SCREEN, levelCreatorMenu_saveLevelOnClick),
-                Button("Back to Main Menu", pygame.font.SysFont("Arial", 30, True), pygame.Color(15, 15, 15), pygame.Color(194, 194, 194), pygame.Rect(0, -90, 400, 50), PositionOffset.CENTER_SCREEN, levelCreatorMenu_backToMainMenuOnClick)
+                Button("Back to LevelCreator", pygame.Rect(0, 90, 400, 50), levelCreatorMenu_backToLevelCreatorOnClick),
+                Button("Load Level", pygame.Rect(0, 30, 400, 50), levelCreatorMenu_loadLevelOnClick),
+                Button("Save Level", pygame.Rect(0, -30, 400, 50), levelCreatorMenu_saveLevelOnClick),
+                Button("Back to Main Menu", pygame.Rect(0, -90, 400, 50), levelCreatorMenu_backToMainMenuOnClick)
             ]
 
 # MainMenu

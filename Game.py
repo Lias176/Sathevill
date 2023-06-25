@@ -68,3 +68,6 @@ def mouseWheel(y: int):
     match state:
         case GameState.IN_LEVEL_CREATOR:
             currentLevelCreator.mouseWheel(y)
+
+def mouseMotion(pos: Point):
+    Button.mouseMotion(pos)

@@ -28,6 +28,8 @@ while True:
                 Game.keyPressed(event.key)
             case pygame.MOUSEWHEEL:
                 Game.mouseWheel(event.y)
+            case pygame.MOUSEMOTION:
+                Game.mouseMotion(Point.fromTuple(event.pos))
 
     Game.update(clock.get_time())
     
