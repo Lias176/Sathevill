@@ -1,4 +1,4 @@
-import pygame, math, Textures, Game
+import pygame, math, Textures
 from threading import Timer
 from Entity import Entity
 from Point import Point
@@ -6,13 +6,16 @@ from Animation import Animation
 from Directions import Directions
 
 class Player(Entity):
-    def __init__(self):
+    id = "player"
+    surface = Textures.PLAYER_DOWN.surface
+
+    def __init__(self, pos: Point):
         self.WALK_UP_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_UP_0.surface, Textures.PLAYER_WALK_UP_1.surface ], 250)
         self.WALK_RIGHT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_RIGHT_0.surface, Textures.PLAYER_WALK_RIGHT_1.surface ], 250)
         self.WALK_DOWN_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_DOWN_0.surface, Textures.PLAYER_WALK_DOWN_1.surface ], 250)
         self.WALK_LEFT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_LEFT_0.surface, Textures.PLAYER_WALK_LEFT_1.surface ], 250)
 
-        super().__init__(Textures.PLAYER_DOWN.surface)
+        super().__init__(pos)
         self.invincible: bool = False
         self.maxHealth: int = 3
         self.health: int = self.maxHealth
@@ -73,29 +76,7 @@ class Player(Entity):
                     self.walkAnimation.stop()
                 self.walkAnimation = self.WALK_LEFT_ANIMATION
                 self.walkAnimation.play()
-            x: int = math.sin(math.radians(angle)) * self.speed * time
-            y: int = -(math.cos(math.radians(angle)) * self.speed * time)
-
-            updatedX: bool = False
-            updatedY: bool = False
-            for levelObject in Game.currentLevel.levelObjects:
-                if(levelObject.collisionRect == None):
-                    continue
-                collisionRect: pygame.Rect = levelObject.getAbsoluteCollisionRect()
-                updatedXRect: pygame.Rect = pygame.Rect(self.x + x, self.y + self.surface.get_height(), self.surface.get_width(), 1)
-                updatedYRect: pygame.Rect = pygame.Rect(self.x, self.y + self.surface.get_height() + y, self.surface.get_width(), 1)
-                if(collisionRect.colliderect(updatedXRect)):
-                    self.x = collisionRect.left - self.surface.get_width() if x > 0 else collisionRect.right
-                    updatedX = True
-                elif(collisionRect.colliderect(updatedYRect)):
-                    self.y = (collisionRect.top - 1 if y > 0 else collisionRect.bottom) - self.surface.get_height()
-                    updatedY = True
-                if(updatedX or updatedY):
-                    break
-            if(not updatedX):
-                self.x += x
-            if(not updatedY):
-                self.y += y
+            self.move(math.sin(math.radians(angle)) * self.speed * time, -(math.cos(math.radians(angle)) * self.speed * time))
         else:
             if(self.walkAnimation != None):
                 self.walkAnimation.stop()
@@ -103,13 +84,13 @@ class Player(Entity):
             if(self.movedLastFrame):
                 match(self.direction):
                     case Directions.UP:
-                        self.surface = Textures.PLAYER_UP.surface
+                        self.setSurface(Textures.PLAYER_UP.surface)
                     case Directions.RIGHT:
-                        self.surface = Textures.PLAYER_RIGHT.surface
+                        self.setSurface(Textures.PLAYER_RIGHT.surface)
                     case Directions.DOWN:
-                        self.surface = Textures.PLAYER_DOWN.surface
+                        self.setSurface(Textures.PLAYER_DOWN.surface)
                     case Directions.LEFT:
-                        self.surface = Textures.PLAYER_LEFT.surface
+                        self.setSurface(Textures.PLAYER_LEFT.surface)
             self.movedLastFrame = False
 
         super().update(time)
@@ -117,8 +98,14 @@ class Player(Entity):
     def takeDamage(self, damageAmount: int):
         super().takeDamage(damageAmount)
         self.invincible = True
-        timer = Timer(2, self.removeInvincability)
-        timer.start()
+        self.addOverlayColor(pygame.Color(255, 0, 0, 150))
+        invincabilityTimer = Timer(1, self.removeInvincability)
+        invincabilityTimer.start()
+        removeColorTimer = Timer(0.5, self.removeOverlayColor)
+        removeColorTimer.start()
+
+    def removeColor(self):
+        self.removeOverlayColor()
 
     def removeInvincability(self):
         self.invincible = False

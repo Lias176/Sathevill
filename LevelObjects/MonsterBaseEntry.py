@@ -1,11 +1,11 @@
-import pygame
+import pygame, Textures
 from LevelObject import LevelObject
 from Point import Point
 
 class MonsterBaseEntry(LevelObject):
-    id: str = "monsterBaseEntry"
-    layer: int = 1
-    image: str = "images\\monsterbaseEntry.png"
+    id = "monsterBaseEntry"
+    layer = 1
+    surface = Textures.MONSTER_BASE_ENTRY.surface
 
     def __init__(self, pos: Point):
         super().__init__(pos)

@@ -1,4 +1,4 @@
-import sys, pygame, MenuManager, os, Game
+import sys, pygame, os
 from Point import Point
 
 if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
@@ -8,6 +8,8 @@ pygame.init()
 
 screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
 clock = pygame.time.Clock()
+
+import Game, MenuManager
 
 Game.init(screen)
 

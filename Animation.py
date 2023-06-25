@@ -25,10 +25,10 @@ class Animation:
             self.currentFrame = 0
         else:
             self.currentFrame += 1
-        self.object.surface = self.surfaces[self.currentFrame]
+        self.object.setSurface(self.surfaces[self.currentFrame])
 
     def play(self):
-        self.object.surface = self.surfaces[0]
+        self.object.setSurface(self.surfaces[0])
         self.isRunning = True
     
     def stop(self):

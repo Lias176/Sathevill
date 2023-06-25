@@ -4,6 +4,8 @@ from Level import Level
 from enum import Enum
 from LevelCreator import LevelCreator
 from Animation import Animation
+from LevelObject import LevelObject
+from Entity import Entity
 
 class GameState(Enum):
     IN_LEVEL = 0
@@ -15,9 +17,13 @@ currentLevel: Level = None
 screen: pygame.Surface = None
 currentLevelCreator: LevelCreator = None
 
-def init(initScreen : pygame.Surface):
+def init(initScreen: pygame.Surface):
     global screen
     screen = initScreen
+    for subclass in LevelObject.__subclasses__():
+        LevelObject.idClasses[subclass.id] = subclass
+    for subclass in Entity.__subclasses__():
+        LevelObject.idClasses[subclass.id] = subclass
 
 def mouseClicked(button: int, pos: Point):
     match state:

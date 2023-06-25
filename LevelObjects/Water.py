@@ -1,11 +1,11 @@
-import pygame
+import pygame, Textures
 from LevelObject import LevelObject
 from Point import Point
 
 class Water(LevelObject):
-    id: str = "water"
-    layer: int = 0
-    image: str = "images\\water.png"
+    id = "water"
+    layer = 0
+    surface = Textures.WATER.surface
 
     def __init__(self, pos: Point):
         super().__init__(pos)

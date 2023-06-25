@@ -4,8 +4,20 @@ from Point import Point
 class GameObject:
     def __init__(self, surface: pygame.Surface, pos: Point):
         self.surface: pygame.Surface = surface
+        self.surface.convert_alpha()
         self.borderSurface: pygame.Surface = None
+        self.colorOverlaySurface: pygame.Surface = None
+        self.overlayColor: pygame.Color = None
         self.pos: Point = pos
+
+    def setSurface(self, surface: pygame.Surface):
+        self.surface = surface.convert_alpha()
+        if(self.colorOverlaySurface != None):
+            self.removeOverlayColor()
+            self.addOverlayColor(self.overlayColor)
+
+    def getCenterPos(self) -> Point:
+        return Point(self.pos.x + self.surface.get_width() / 2, self.pos.y + self.surface.get_height() / 2)
 
     def render(self, screen: pygame.Surface):
         self.renderAt(screen, self.pos)
@@ -14,6 +26,8 @@ class GameObject:
         screen.blit(self.surface, pos.toTuple())
         if(self.borderSurface != None):
             screen.blit(self.borderSurface, pos.toTuple())
+        if(self.colorOverlaySurface != None):
+            screen.blit(self.colorOverlaySurface, pos.toTuple())
 
     def renderOffset(self, screen: pygame.Surface, offset: Point):
         self.renderAt(screen, self.pos.offset(offset))
@@ -34,7 +48,7 @@ class GameObject:
             width = self.surface.get_width() * (height / self.surface.get_height())
         elif(height == None):
             height = self.surface.get_height() * (width / self.surface.get_width())
-        self.surface = pygame.transform.scale(self.surface, (width, height))
+        self.setSurface(pygame.transform.scale(self.surface, (width, height)))
 
     def addBoxBorder(self, color: pygame.Color):
         self.borderSurface = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA).convert_alpha()
@@ -50,3 +64,14 @@ class GameObject:
 
     def isPixelTransparent(self, pixel: Point) -> bool:
         return pygame.Color(self.surface.get_at(pixel.toTuple())).a == 0
+    
+    def addOverlayColor(self, color: pygame.Color):
+        self.overlayColor = color
+        self.colorOverlaySurface = pygame.Surface(self.surface.get_size(), pygame.SRCALPHA).convert_alpha()
+        for x in range(self.surface.get_width()):
+            for y in range(self.surface.get_height()):
+                if(not self.isPixelTransparent(Point(x, y))):
+                    self.colorOverlaySurface.set_at((x, y), color)
+
+    def removeOverlayColor(self):
+        self.colorOverlaySurface = None

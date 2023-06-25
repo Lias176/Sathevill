@@ -1,5 +1,5 @@
 import json, MenuManager, Game, pygame, Textures, CoordUtils
-from Entitys.Player import Player
+from Entities.Player import Player
 from Entity import Entity
 from Point import Point
 from io import TextIOWrapper
@@ -7,9 +7,10 @@ from LevelObject import LevelObject
 
 class Level:
     def __init__(self, file: str):
-        self.player: Player = Player()
+        self.player: Player = Player(Point(0, 0))
         self.entities: list[Entity] = []
-        self.entities.append(self.player)
+        self.layerEntities: dict[int, list[Entity]] = { 0: [], 1: [] }
+        self.addEntity(self.player)
         self.levelObjects: list[LevelObject] = []
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
         self.saveFilePath: str = file
@@ -30,7 +31,14 @@ class Level:
         for id in level.keys():
             objectType: type[LevelObject] = LevelObject.getClassById(id)
             for pos in level[id]:
-                self.addLevelObject(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+                if(objectType.isEntity):
+                    self.addEntity(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+                else:
+                    self.addLevelObject(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+
+    def addEntity(self, entity: Entity):
+        self.entities.append(entity)
+        self.layerEntities[1].append(entity)
 
     def join(self):
         MenuManager.setMenu(None)
@@ -69,7 +77,8 @@ class Level:
                 self.pause(True)
 
     def update(self, time: int):
-        self.player.update(time)
+        for entity in self.entities:
+            entity.update(time)
         if(self.player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
             Game.state = Game.GameState.IN_MENU
             MenuManager.setMenu(MenuManager.Menus.DeathMenu)
@@ -79,8 +88,9 @@ class Level:
         for i in self.layerLevelObjects:
             for levelObject in self.layerLevelObjects[i]:
                 levelObject.renderOffset(screen, self.cameraPos.reverseSign())
-        for entity in self.entities:
-            entity.renderOffset(screen, self.cameraPos.reverseSign())
+            if i in self.layerEntities:
+                for entity in self.layerEntities[i]:
+                    entity.renderOffset(screen, self.cameraPos.reverseSign())
         for i in range(self.player.health):
             Textures.HEART.renderAt(screen, Point(Textures.HEART.surface.get_width() * i + 2, 2))
 

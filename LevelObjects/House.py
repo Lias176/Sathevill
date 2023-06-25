@@ -1,11 +1,11 @@
-import pygame
+import pygame, Textures
 from LevelObject import LevelObject
 from Point import Point
 
 class House(LevelObject):
-    id: str = "house"
-    layer: int = 1
-    image: str = "images\\House.png"
+    id = "house"
+    layer = 1
+    surface = Textures.HOUSE.surface
 
     def __init__(self, pos: Point):
         super().__init__(pos)

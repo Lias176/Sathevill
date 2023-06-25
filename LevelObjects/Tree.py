@@ -1,11 +1,11 @@
-import pygame
+import pygame, Textures
 from LevelObject import LevelObject
 from Point import Point
 
 class Tree(LevelObject):
-    id: str = "tree"
-    layer: int = 1
-    image: str = "images\\tree.png"
+    id = "tree"
+    layer = 1
+    surface = Textures.TREE.surface
 
     def __init__(self, pos: Point):
         super().__init__(pos)

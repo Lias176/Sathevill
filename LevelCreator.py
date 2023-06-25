@@ -1,10 +1,12 @@
-import pygame, json, Game, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone
+import pygame, json, Game, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime
 from GameObject import GameObject
 from Point import Point
 from io import TextIOWrapper
 from LevelObject import LevelObject
 from LevelCreatorTool import LevelCreatorTool
 from LevelCreatorTool import LevelCreatorTools
+from Entity import Entity
+from Entities.Player import Player
 
 class LevelCreator:
     def __init__(self):
@@ -18,7 +20,12 @@ class LevelCreator:
         self.rightDownMousePos: Point = Point(0, 0)
         self.rightDownCamPos: Point = Point(0, 0)
         self.cameraPos: Point = Point(0, 0)
-        for levelObjectClass in LevelObject.__subclasses__():
+        classes: list[type[LevelObject]] = LevelObject.__subclasses__()
+        classes.extend(Entity.__subclasses__())
+        classes.remove(Player)
+        for levelObjectClass in classes:
+            if(levelObjectClass == Entity):
+                continue
             object: levelObjectClass = levelObjectClass(Point(0, 0))
             if(object.surface.get_width() > self.selectObjectBGPanel.surface.get_width() - 50):
                 object.resize(width = self.selectObjectBGPanel.surface.get_width() - 50)
@@ -95,7 +102,7 @@ class LevelCreator:
                     if(not selectableObject.collidepoint(pos)):
                         continue
                     self.selectedType = type(selectableObject)
-                    self.placeTool.surface = self.selectedType(Point(0, 0)).surface
+                    self.placeTool.setSurface(self.selectedType(Point(0, 0)).surface)
                     self.updateToolPanel()
                     self.placePreviewObject = self.selectedType(Point(0, 0))
                     self.placePreviewObject.surface.set_alpha(50)

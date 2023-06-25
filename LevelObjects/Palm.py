@@ -1,11 +1,11 @@
-import pygame
+import pygame, Textures
 from LevelObject import LevelObject
 from Point import Point
 
 class Palm(LevelObject):
-    id: str = "palm"
-    layer: int = 1
-    image: str = "images\\palm.png"
+    id = "palm"
+    layer = 1
+    surface = Textures.PALM.surface
 
     def __init__(self, pos: Point):
         super().__init__(pos)

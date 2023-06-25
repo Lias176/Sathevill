@@ -1,4 +1,5 @@
 from __future__ import annotations
+import math
 
 class Point:
     def __init__(self, x: int, y: int):
@@ -23,3 +24,6 @@ class Point:
     
     def offset(self, offset: Point) -> Point:
         return Point(self.x + offset.x, self.y + offset.y)
+    
+    def getDistance(self, p: Point) -> int:
+        return math.floor(math.sqrt((self.x - p.x) ** 2 + (self.y - p.y) ** 2))
