@@ -49,8 +49,6 @@ class Entity(LevelObject):
             elif(collisionRect.colliderect(updatedYRect)):
                 self.y = (collisionRect.top - 1 if y > 0 else collisionRect.bottom) - self.surface.get_height()
                 updatedY = True
-            if(updatedX or updatedY):
-                break
         if(not updatedX):
             self.x += x
         if(not updatedY):
