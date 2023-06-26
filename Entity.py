@@ -18,6 +18,16 @@ class Entity(LevelObject):
         self.renderingLayer: int = 1
         self.xVelocity: int = 0
         self.yVelocity: int = 0
+        self.renderHealthBar: bool = True
+        self.healthBar: pygame.Surface = pygame.Surface((100, 10))
+        self.updateHealthBar()
+
+    def updateHealthBar(self):
+        if(not self.renderHealthBar):
+            return
+        self.healthBar.fill(pygame.Color(255, 255, 255))
+        healthRect: pygame.Rect = (0, 0, 100 / (self.maxHealth / self.health), 10)
+        self.healthBar.fill(pygame.Color(255, 0, 0), healthRect)
 
     def move(self, x: int, y: int):
         updatedX: bool = False
@@ -82,6 +92,12 @@ class Entity(LevelObject):
         self.addOverlayColor(pygame.Color(255, 0, 0, 150))
         removeColorTimer = Timer(500, self.removeOverlayColor)
         removeColorTimer.start()
+        self.updateHealthBar()
 
     def removeColor(self):
         self.removeOverlayColor()
+
+    def renderAt(self, screen: pygame.Surface, pos: tuple[int, int]):
+        super().renderAt(screen, pos)
+        if(self.renderHealthBar):
+            screen.blit(self.healthBar, (pos[0] + self.surface.get_width() / 2 - 50, pos[1] - 20))

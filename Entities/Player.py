@@ -23,6 +23,7 @@ class Player(Entity):
         self.movedLastFrame: bool = False
         self.walkAnimation: Animation = None
         self.canAttack: bool = True
+        self.renderHealthBar = False
 
     def update(self, time: int):
         keys = pygame.key.get_pressed()
