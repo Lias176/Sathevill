@@ -3,6 +3,8 @@ from enum import Enum
 from tkinter import filedialog
 from Button import Button
 from LevelCreator import LevelCreator
+from UIElement import UIElement
+from TextBox import TextBox
 from Point import Point
 
 class Menus(Enum):
@@ -13,7 +15,7 @@ class Menus(Enum):
     DeathMenu = 4,
     LevelCreatorMenu = 5
 
-buttons : list[Button] = []
+uiElements: list[UIElement] = []
 currentMenu = None
 
 def keyPressed(key : int):
@@ -27,31 +29,32 @@ def keyPressed(key : int):
                 
 def render(screen : pygame.Surface):
     screen.fill(pygame.Color(15, 15, 15))
-    for button in buttons:
-        button.render(screen)
+    for uiElement in uiElements:
+        uiElement.render(screen)
 
 def setMenu(menu):
-    global currentMenu, buttons
+    global currentMenu, uiElements
     currentMenu = menu
-    if(len(buttons) > 0):
-        for button in buttons:
-            button.remove()
-        buttons = []
+    if(len(uiElements) > 0):
+        for uiElement in uiElements:
+            if(type(uiElement) == Button):
+                uiElement.remove()
+        uiElements = []
     
     match menu:
         case Menus.MainMenu:
-            buttons = [
+            uiElements = [
                 Button("Play", pygame.Rect(0, 90, 400, 50), mainMenu_playButtonOnClick),
                 Button("Options", pygame.Rect(0, 30, 400, 50), mainMenu_optionsButtonOnClick),
                 Button("Level creator", pygame.Rect(0, -30, 400, 50), mainMenu_levelCreatorButtonOnClick),
                 Button("Quit", pygame.Rect(0, -90, 400, 50), mainMenu_quitButtonOnClick)
             ]
         case Menus.OptionsMenu:
-            buttons = [
+            uiElements = [
                 Button("Back", pygame.Rect(0, 0, 400, 50), optionsMenu_backButtonOnClick)
             ]
         case Menus.PlayMenu:
-            buttons = [
+            uiElements = [
                 Button("Back", pygame.Rect(0, 150, 400, 50), playMenu_backButtonOnClick),
                 Button("Save 1", pygame.Rect(0, 90, 400, 50), functools.partial(playMenu_saveButtonOnClick, 1)),
                 Button("Save 2", pygame.Rect(0, 30, 400, 50), functools.partial(playMenu_saveButtonOnClick, 2)),
@@ -60,17 +63,18 @@ def setMenu(menu):
                 Button("Save 5", pygame.Rect(0, -150, 400, 50), functools.partial(playMenu_saveButtonOnClick, 5))
             ]
         case Menus.PauseMenu:
-            buttons = [
+            uiElements = [
                 Button("Continue", pygame.Rect(0, 30, 400, 50), pauseMenu_continueButtonOnClick),
                 Button("Back to Main Menu", pygame.Rect(0, -30, 400, 50), pauseMenu_backToMainMenuOnClick)
             ]
         case Menus.DeathMenu:
-            buttons = [
+            uiElements = [
+                TextBox("Du bist gestorben!", Point(0, 115), pygame.font.Font("fonts\\Roboto-Bold.ttf", 60)),
                 Button("Respawn", pygame.Rect(0, 30, 400, 50), deathMenu_respawnOnClick),
                 Button("Back to Main Menu", pygame.Rect(0, -30, 400, 50), deathMenu_backToMainMenuOnClick)
             ]
         case Menus.LevelCreatorMenu:
-            buttons = [
+            uiElements = [
                 Button("Back to LevelCreator", pygame.Rect(0, 90, 400, 50), levelCreatorMenu_backToLevelCreatorOnClick),
                 Button("Load Level", pygame.Rect(0, 30, 400, 50), levelCreatorMenu_loadLevelOnClick),
                 Button("Save Level", pygame.Rect(0, -30, 400, 50), levelCreatorMenu_saveLevelOnClick),

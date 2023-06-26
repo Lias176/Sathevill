@@ -1,14 +1,16 @@
-import pygame, Game, math
+import pygame, Game
 from enum import Enum
 from GameObject import GameObject
 from Point import Point
+from UIElement import UIElement
 
 class PositionOffset(Enum):
     TOP_LEFT = 0
     CENTER_SCREEN = 1
 
-class Button:
+class Button(UIElement):
     def __init__(self, text: str, rect: pygame.Rect, onClick: callable, font: pygame.font.Font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 30), fontColor: pygame.Color = pygame.Color(194, 194, 194), borderColor: pygame.Color = pygame.Color(194, 194, 194), bgColor: pygame.Color = pygame.Color(15, 15, 15), borderRadius: int = 30, offset: PositionOffset =  PositionOffset.CENTER_SCREEN, hoverColor: pygame.Color = pygame.Color(50, 50, 50)):
+        super().__init__()
         self.isHoverd: bool = False
         font.bold = True
         self.onClick: callable = onClick
@@ -23,6 +25,7 @@ class Button:
         self.drawBg(self.bgColor)
         self.fontObject = GameObject(font.render(text, True, fontColor), Point(0, 0))
         self.fontObject.pos = self.bgObject.pos.offset(Point(rect.width / 2 - self.fontObject.surface.get_width() / 2, rect.height / 2 - self.fontObject.surface.get_height() / 2))
+        self.objects = [self.bgObject, self.fontObject]
         buttons.append(self)
 
     def drawBg(self, bgColor: pygame.Color):
@@ -31,10 +34,6 @@ class Button:
         pygame.draw.line(self.bgObject.surface, self.borderColor, (0, self.bgObject.surface.get_height() - 2), (self.bgObject.surface.get_width(), self.bgObject.surface.get_height() - 2), 2)
         pygame.draw.line(self.bgObject.surface, self.borderColor, (0, 0), (0, self.bgObject.surface.get_height()), 2)
         pygame.draw.line(self.bgObject.surface, self.borderColor, (self.bgObject.surface.get_width() - 2, 0), (self.bgObject.surface.get_width() - 2, self.bgObject.surface.get_height()), 2)
-
-    def render(self, screen: pygame.Surface):
-        self.bgObject.render(screen)
-        self.fontObject.render(screen)
 
     def remove(self):
         buttons.remove(self)
