@@ -6,6 +6,7 @@ from LevelCreator import LevelCreator
 from Animation import Animation
 from LevelObject import LevelObject
 from Entity import Entity
+from Timer import Timer
 
 class GameState(Enum):
     IN_LEVEL = 0
@@ -29,6 +30,8 @@ def mouseClicked(button: int, pos: Point):
     match state:
         case GameState.IN_LEVEL_CREATOR:
             currentLevelCreator.mousePressed(button, pos)
+        case GameState.IN_LEVEL:
+            currentLevel.mousePressed(button, pos)
     Button.mouseClicked(button, pos)
 
 def mouseUp(button: int):
@@ -44,6 +47,8 @@ def update(time: int):
             currentLevelCreator.update()
     for animation in Animation.animations:
         animation.update(time)
+    for timer in Timer.timers:
+        timer.update(time)
 
 def render(screen: pygame.Surface):
     screen.fill("black")

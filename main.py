@@ -32,7 +32,6 @@ while True:
                 Game.mouseMotion(Point.fromTuple(event.pos))
 
     Game.update(clock.get_time())
-    
     Game.render(screen)
 
     pygame.display.flip()

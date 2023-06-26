@@ -1,6 +1,7 @@
-import pygame, math, Game, time
+import pygame, math, Game
 from LevelObject import LevelObject
 from Point import Point
+from Timer import Timer
 
 class Entity(LevelObject):
     layer = 1
@@ -9,12 +10,14 @@ class Entity(LevelObject):
     def __init__(self, pos: Point):
         super().__init__(pos)
         self.speed: float = 0.2
-        self.maxHealth: int = 1
+        self.maxHealth: int = 3
         self.health: int = self.maxHealth
         self.isAlive: bool = True
         self.x: float = pos.x
         self.y: float = pos.y
         self.renderingLayer: int = 1
+        self.xVelocity: int = 0
+        self.yVelocity: int = 0
 
     def move(self, x: int, y: int):
         updatedX: bool = False
@@ -54,9 +57,33 @@ class Entity(LevelObject):
             self.y += y
 
     def update(self, time: int):
+        if(self.xVelocity != 0):
+            if(self.xVelocity < 0):
+                self.x += self.xVelocity
+                self.xVelocity = min(self.xVelocity + time, 0)
+            else:
+                self.x += self.xVelocity
+                self.xVelocity = max(self.xVelocity - time, 0)
+        if(self.yVelocity != 0):
+            if(self.yVelocity < 0):
+                self.y += self.yVelocity
+                self.yVelocity = min(self.yVelocity + time, 0)
+            else:
+                self.y += self.yVelocity
+                self.yVelocity = max(self.yVelocity - time, 0)
+
         self.pos = Point(math.floor(self.x), math.floor(self.y))
 
-    def takeDamage(self, damageAmount: int):
+    def takeDamage(self, damageAmount: int, removeFromList: bool = True):
         self.health -= damageAmount
         if(self.health <= 0):
             self.isAlive = False
+            if(removeFromList):
+                Game.currentLevel.removeEntity(self)
+            return
+        self.addOverlayColor(pygame.Color(255, 0, 0, 150))
+        removeColorTimer = Timer(500, self.removeOverlayColor)
+        removeColorTimer.start()
+
+    def removeColor(self):
+        self.removeOverlayColor()

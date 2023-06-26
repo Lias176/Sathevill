@@ -6,7 +6,7 @@ from .Player import Player
 
 class Slime(Entity):
     id = "slime"
-    surface = Textures.SLIME_RIGHT.surface
+    surface = Textures.SLIME_RIGHT.surface.convert_alpha()
 
     def __init__(self, pos: Point):
         super().__init__(pos)

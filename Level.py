@@ -4,6 +4,7 @@ from Entity import Entity
 from Point import Point
 from io import TextIOWrapper
 from LevelObject import LevelObject
+from GameObject import GameObject
 
 class Level:
     def __init__(self, file: str):
@@ -13,6 +14,7 @@ class Level:
         self.addEntity(self.player)
         self.levelObjects: list[LevelObject] = []
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
+        self.particles: list[GameObject] = []
         self.saveFilePath: str = file
         self.cameraPos: tuple[int, int] = (0, 0)
         try:
@@ -39,6 +41,10 @@ class Level:
     def addEntity(self, entity: Entity):
         self.entities.append(entity)
         self.layerEntities[1].append(entity)
+
+    def removeEntity(self, entity: Entity):
+        self.entities.remove(entity)
+        self.layerEntities[entity.layer].remove(entity)
 
     def join(self):
         MenuManager.setMenu(None)
@@ -78,6 +84,8 @@ class Level:
 
     def update(self, time: int):
         for entity in self.entities:
+            if(entity.isNotOnScreen(self.cameraPos)):
+                continue
             entity.update(time)
         if(self.player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
             Game.state = Game.GameState.IN_MENU
@@ -92,9 +100,15 @@ class Level:
                 levelObject.renderMinusOffset(screen, self.cameraPos)
             if i in self.layerEntities:
                 for entity in self.layerEntities[i]:
+                    if(entity.isNotOnScreen(self.cameraPos)):
+                        continue
                     entity.renderMinusOffset(screen, self.cameraPos)
+        for particle in self.particles:
+            if(particle.isNotOnScreen(self.cameraPos)):
+                continue
+            particle.renderMinusOffset(screen, self.cameraPos)
         for i in range(self.player.health):
-            Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2, 2))
+            Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2 * i + 2, 2))
 
     def addLevelObject(self, object: LevelObject):
         self.levelObjects.append(object)
@@ -112,3 +126,8 @@ class Level:
         self.player.respawn()
         MenuManager.setMenu(None)
         Game.state = Game.GameState.IN_LEVEL
+
+    def mousePressed(self, button: int, pos: Point):
+        if(button != 1):
+            return
+        self.player.attack()

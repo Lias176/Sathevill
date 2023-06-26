@@ -1,5 +1,5 @@
-import pygame, math, Textures
-from threading import Timer
+import pygame, math, Textures, Game
+from Timer import Timer
 from Entity import Entity
 from Point import Point
 from Animation import Animation
@@ -10,10 +10,10 @@ class Player(Entity):
     surface = Textures.PLAYER_DOWN.surface
 
     def __init__(self, pos: Point):
-        self.WALK_UP_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_UP_0.surface, Textures.PLAYER_WALK_UP_1.surface ], 250)
-        self.WALK_RIGHT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_RIGHT_0.surface, Textures.PLAYER_WALK_RIGHT_1.surface ], 250)
-        self.WALK_DOWN_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_DOWN_0.surface, Textures.PLAYER_WALK_DOWN_1.surface ], 250)
-        self.WALK_LEFT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_LEFT_0.surface, Textures.PLAYER_WALK_LEFT_1.surface ], 250)
+        self.WALK_UP_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_UP_0.surface, Textures.PLAYER_WALK_UP_1.surface ], 250, True)
+        self.WALK_RIGHT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_RIGHT_0.surface, Textures.PLAYER_WALK_RIGHT_1.surface ], 250, True)
+        self.WALK_DOWN_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_DOWN_0.surface, Textures.PLAYER_WALK_DOWN_1.surface ], 250, True)
+        self.WALK_LEFT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_LEFT_0.surface, Textures.PLAYER_WALK_LEFT_1.surface ], 250, True)
 
         super().__init__(pos)
         self.invincible: bool = False
@@ -22,6 +22,7 @@ class Player(Entity):
         self.direction: Directions = Directions.DOWN
         self.movedLastFrame: bool = False
         self.walkAnimation: Animation = None
+        self.canAttack: bool = True
 
     def update(self, time: int):
         keys = pygame.key.get_pressed()
@@ -96,13 +97,10 @@ class Player(Entity):
         super().update(time)
 
     def takeDamage(self, damageAmount: int):
-        super().takeDamage(damageAmount)
+        super().takeDamage(damageAmount, False)
         self.invincible = True
-        self.addOverlayColor(pygame.Color(255, 0, 0, 150))
-        invincabilityTimer = Timer(1, self.removeInvincability)
+        invincabilityTimer = Timer(1000, self.removeInvincability)
         invincabilityTimer.start()
-        removeColorTimer = Timer(0.5, self.removeOverlayColor)
-        removeColorTimer.start()
 
     def removeColor(self):
         self.removeOverlayColor()
@@ -115,3 +113,38 @@ class Player(Entity):
         self.y = 0
         self.isAlive = True
         self.health = self.maxHealth
+
+    def attack(self):
+        if(not self.canAttack):
+            return
+        attackRect: pygame.Rect
+        centerPos: Point = self.getCenterPos()
+        match(self.direction):
+            case Directions.UP:
+                attackRect = pygame.Rect(centerPos.x - 40, self.y - 50, 80, 50)
+            case Directions.RIGHT:
+                attackRect = pygame.Rect(self.x + 36, centerPos.y - 40, 50, 80)
+            case Directions.LEFT:
+                attackRect = pygame.Rect(self.x - 45, centerPos.y - 40, 50, 80)
+            case Directions.DOWN:
+                attackRect = pygame.Rect(centerPos.x - 40, self.y + 90, 80, 50)
+        hasHitEnemy: bool = False
+        for entity in Game.currentLevel.entities:
+            if(entity == self or entity.isNotOnScreen(Game.currentLevel.cameraPos) or not entity.colliderect(attackRect)):
+                continue
+            hasHitEnemy = True
+            entity.takeDamage(1)
+            entityCenterPos = entity.getCenterPos()
+            angle: int = 0
+            if(centerPos.x != entityCenterPos.x):
+                angle = math.degrees(math.atan((centerPos.y - entityCenterPos.y) / (centerPos.x - entityCenterPos.x))) + (90 if entityCenterPos.x > centerPos.x else 270)
+            entity.xVelocity = math.sin(math.radians(angle)) * self.speed * 200
+            entity.yVelocity = -(math.cos(math.radians(angle)) * self.speed * 200)
+        if(hasHitEnemy):
+            self.canAttack = False
+            timer: Timer = Timer(1000, self.canAttackTrue)
+            timer.start()
+
+    def canAttackTrue(self):
+        self.canAttack = True
+            
