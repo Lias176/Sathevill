@@ -32,14 +32,19 @@ class LevelCreator:
             object.pos = Point(self.selectObjectBGPanel.surface.get_width() / 2 - object.surface.get_width() / 2, 50 if len(self.selectableObjects) == 0 else self.selectableObjects[-1].pos.y + self.selectableObjects[-1].surface.get_height() + 50)
             self.selectableObjects.append(object)
         self.selectedType: type[LevelObject] = type(self.selectableObjects[0])
-        self.placePreviewObject: LevelObject = self.selectedType(Point(0, 0))
-        self.placePreviewObject.surface.set_alpha(50)
+        self.placePreviewObject: LevelObject = None
+        self.updatePreviewObject()
 
         self.placeTool: LevelCreatorTool = LevelCreatorTool(self.selectedType(Point(0, 0)).surface, LevelCreatorTools.PLACE)
         self.removeTool: LevelCreatorTool = LevelCreatorTool(pygame.image.load("images\\remove.png"), LevelCreatorTools.REMOVE)
         self.tools: list[LevelCreatorTool] = [ self.placeTool, self.removeTool ]
         self.selectedTool: LevelCreatorTool = self.tools[0]
         self.updateToolPanel()
+
+    def updatePreviewObject(self):
+        self.placePreviewObject: LevelObject = self.selectedType(Point(0, 0))
+        self.placePreviewObject.surface = self.placePreviewObject.surface.copy()
+        self.placePreviewObject.surface.set_alpha(50)
 
     def updateToolPanel(self):
         toolBGPanelWidth = 25
@@ -104,8 +109,7 @@ class LevelCreator:
                     self.selectedType = type(selectableObject)
                     self.placeTool.setSurface(self.selectedType(Point(0, 0)).surface)
                     self.updateToolPanel()
-                    self.placePreviewObject = self.selectedType(Point(0, 0))
-                    self.placePreviewObject.surface.set_alpha(50)
+                    self.updatePreviewObject()
                     break
             elif(self.toolBGPanel.collidepoint(pos)):
                 for tool in self.tools:
