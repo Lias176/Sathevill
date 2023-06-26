@@ -60,7 +60,7 @@ class LevelCreator:
     def render(self, screen: pygame.Surface):
         for i in self.layerLevelObjects:
             for levelObject in self.layerLevelObjects[i]:
-                levelObject.renderOffset(screen, self.cameraPos.reverseSign())
+                levelObject.renderMinusOffset(screen, self.cameraPos.toTuple())
         self.selectObjectBGPanel.render(screen)
         for selectableObject in self.selectableObjects:
             selectableObject.render(screen)
@@ -68,7 +68,7 @@ class LevelCreator:
         for tool in self.tools:
             tool.render(screen)
         if(self.canPlaceAt(Point.fromTuple(pygame.mouse.get_pos())) and self.selectedTool.type == LevelCreatorTools.PLACE):
-            self.placePreviewObject.renderOffset(screen, self.cameraPos.reverseSign())
+            self.placePreviewObject.renderMinusOffset(screen, self.cameraPos.toTuple())
 
     def update(self):
         mouse: tuple[bool, bool, bool] = pygame.mouse.get_pressed(3)

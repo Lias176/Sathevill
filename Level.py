@@ -14,7 +14,7 @@ class Level:
         self.levelObjects: list[LevelObject] = []
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
         self.saveFilePath: str = file
-        self.cameraPos: Point = Point(0, 0)
+        self.cameraPos: tuple[int, int] = (0, 0)
         try:
             saveFile: TextIOWrapper = open(self.saveFilePath, "r")
             save: dict[str, any] = json.loads(saveFile.read())
@@ -82,17 +82,19 @@ class Level:
         if(self.player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
             Game.state = Game.GameState.IN_MENU
             MenuManager.setMenu(MenuManager.Menus.DeathMenu)
-        self.cameraPos = Point(self.player.pos.x - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos.y - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
+        self.cameraPos = (self.player.pos.x - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos.y - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
 
-    def render(self, screen : pygame.Surface):
+    def render(self, screen: pygame.Surface):
         for i in self.layerLevelObjects:
             for levelObject in self.layerLevelObjects[i]:
-                levelObject.renderOffset(screen, self.cameraPos.reverseSign())
+                if(levelObject.isNotOnScreen(self.cameraPos)):
+                    continue
+                levelObject.renderMinusOffset(screen, self.cameraPos)
             if i in self.layerEntities:
                 for entity in self.layerEntities[i]:
-                    entity.renderOffset(screen, self.cameraPos.reverseSign())
+                    entity.renderMinusOffset(screen, self.cameraPos)
         for i in range(self.player.health):
-            Textures.HEART.renderAt(screen, Point(Textures.HEART.surface.get_width() * i + 2, 2))
+            Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2, 2))
 
     def addLevelObject(self, object: LevelObject):
         self.levelObjects.append(object)

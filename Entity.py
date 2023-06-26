@@ -1,4 +1,4 @@
-import pygame, math, Game
+import pygame, math, Game, time
 from LevelObject import LevelObject
 from Point import Point
 
@@ -19,24 +19,25 @@ class Entity(LevelObject):
     def move(self, x: int, y: int):
         updatedX: bool = False
         updatedY: bool = False
+        cameraPos = Game.currentLevel.cameraPos
         for levelObject in Game.currentLevel.levelObjects:
+            if(levelObject.collisionRect == None or levelObject.isNotOnScreen(cameraPos)):
+                continue
+
             # set own rendering layer
+            collisionRect: pygame.Rect = levelObject.getAbsoluteCollisionRect()
             if(levelObject.layer == 1 and self.colliderect(levelObject.getRect())):
-                if(levelObject.collisionRect == None or self.y + self.surface.get_height() >= levelObject.getAbsoluteCollisionRect().bottom):
+                if(levelObject.collisionRect == None or self.y + self.surface.get_height() >= collisionRect.bottom):
                     if(self.renderingLayer == 0):
                         self.renderingLayer = 1
                         Game.currentLevel.layerEntities[0].remove(self)
                         Game.currentLevel.layerEntities[1].append(self)
-                else:
-                    if(self.renderingLayer == 1):
+                elif(self.renderingLayer == 1):
                         self.renderingLayer = 0
                         Game.currentLevel.layerEntities[1].remove(self)
                         Game.currentLevel.layerEntities[0].append(self)
-            
+
             # check collision
-            if(levelObject.collisionRect == None):
-                continue
-            collisionRect: pygame.Rect = levelObject.getAbsoluteCollisionRect()
             updatedXRect: pygame.Rect = pygame.Rect(self.x + x, self.y + self.surface.get_height(), self.surface.get_width(), 1)
             updatedYRect: pygame.Rect = pygame.Rect(self.x, self.y + self.surface.get_height() + y, self.surface.get_width(), 1)
             if(collisionRect.colliderect(updatedXRect)):

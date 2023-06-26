@@ -1,4 +1,4 @@
-import pygame
+import pygame, Game
 from Point import Point
 
 class GameObject:
@@ -16,21 +16,24 @@ class GameObject:
             self.removeOverlayColor()
             self.addOverlayColor(self.overlayColor)
 
+    def isNotOnScreen(self, cameraPos: tuple[int, int]) -> bool:
+        return self.pos.x + self.surface.get_width() < cameraPos[0] or self.pos.x > cameraPos[0] + Game.screen.get_width() or self.pos.y + self.surface.get_height() < cameraPos[1] or self.pos.y > cameraPos[1] + Game.screen.get_height()
+
     def getCenterPos(self) -> Point:
         return Point(self.pos.x + self.surface.get_width() / 2, self.pos.y + self.surface.get_height() / 2)
 
     def render(self, screen: pygame.Surface):
-        self.renderAt(screen, self.pos)
+        self.renderAt(screen, self.pos.toTuple())
 
-    def renderAt(self, screen: pygame.Surface, pos: Point):
-        screen.blit(self.surface, pos.toTuple())
+    def renderAt(self, screen: pygame.Surface, pos: tuple[int, int]):
+        screen.blit(self.surface, pos)
         if(self.borderSurface != None):
-            screen.blit(self.borderSurface, pos.toTuple())
+            screen.blit(self.borderSurface, pos)
         if(self.colorOverlaySurface != None):
-            screen.blit(self.colorOverlaySurface, pos.toTuple())
+            screen.blit(self.colorOverlaySurface, pos)
 
-    def renderOffset(self, screen: pygame.Surface, offset: Point):
-        self.renderAt(screen, self.pos.offset(offset))
+    def renderMinusOffset(self, screen: pygame.Surface, offset: tuple[int, int]):
+        self.renderAt(screen, (self.pos.x - offset[0], self.pos.y - offset[1]))
 
     def getRect(self) -> pygame.Rect:
         return pygame.Rect(self.pos.x, self.pos.y, self.surface.get_width(), self.surface.get_height())
