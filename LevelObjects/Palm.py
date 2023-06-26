@@ -9,4 +9,4 @@ class Palm(LevelObject):
 
     def __init__(self, pos: Point):
         super().__init__(pos)
-        self.collisionRect = pygame.Rect(56, 80, 45, 155)
+        self.collisionRect = pygame.Rect(28, 204, 68, 32)

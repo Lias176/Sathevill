@@ -9,4 +9,4 @@ class Tree(LevelObject):
 
     def __init__(self, pos: Point):
         super().__init__(pos)
-        self.collisionRect = pygame.Rect(54, 138, 48, 168)
+        self.collisionRect = pygame.Rect(55, 247, 48, 60)
