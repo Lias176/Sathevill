@@ -13,6 +13,7 @@ class Slime(Entity):
         self.speed = 0.05
         self.direction: Directions = Directions.RIGHT
         self.damage: int = 1
+        self.attackCooldown: int = 0
 
     def update(self, time: int):
         super().update(time)
@@ -20,7 +21,9 @@ class Slime(Entity):
         centerPos: Point = self.getCenterPos()
         playerCenterPos: Point = player.getCenterPos()
         distance = centerPos.getDistance(playerCenterPos)
-        if(distance < 350 and distance > 50):
+        if(self.attackCooldown > 0):
+            self.attackCooldown -= time
+        if(distance < 350 and distance > 65):
             angle: float = -1
             if(centerPos.x == playerCenterPos.x):
                 angle = 0
@@ -34,6 +37,6 @@ class Slime(Entity):
                 self.direction = Directions.RIGHT
                 self.setSurface(Textures.SLIME_RIGHT.surface)
             self.move(math.sin(math.radians(angle)) * self.speed * time, -(math.cos(math.radians(angle)) * self.speed * time))
-        elif(distance <= 50):
-            if(not player.invincible):
-                player.takeDamage(self.damage)
+        elif(distance <= 65 and self.attackCooldown <= 0 and not player.invincible):
+            player.takeDamage(self.damage)
+            self.attackCooldown = 2000
