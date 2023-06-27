@@ -9,6 +9,7 @@ class LevelObject(GameObject):
     id: str = ""
     idClasses: dict[str, type[LevelObject]] = {}
     isEntity: bool = False
+    isInteractable: bool = False
 
     def __init__(self, pos: Point):
         super().__init__(self.surface, pos)
