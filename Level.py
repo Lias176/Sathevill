@@ -5,6 +5,7 @@ from Point import Point
 from io import TextIOWrapper
 from LevelObject import LevelObject
 from GameObject import GameObject
+from TextDialogue import TextDialogue
 
 class Level:
     def __init__(self, file: str):
@@ -16,6 +17,8 @@ class Level:
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
         self.particles: list[GameObject] = []
         self.saveFilePath: str = file
+        self.dialogue: TextDialogue = None
+        self.isPaused: bool = False
         self.cameraPos: tuple[int, int] = (0, 0)
         try:
             saveFile: TextIOWrapper = open(self.saveFilePath, "r")
@@ -69,7 +72,7 @@ class Level:
         Game.state = Game.GameState.IN_MENU
         MenuManager.setMenu(MenuManager.Menus.MainMenu)
 
-    def pause(self, pause: bool):
+    def openPauseMenu(self, pause: bool):
         if(pause):
             Game.state = Game.GameState.IN_MENU
             MenuManager.setMenu(MenuManager.Menus.PauseMenu)
@@ -80,9 +83,19 @@ class Level:
     def keyPressed(self, key: int):
         match(key):
             case pygame.K_ESCAPE:
-                self.pause(True)
+                self.openPauseMenu(True)
+            case pygame.K_e:
+                if(not self.isPaused):
+                    self.player.interact()
+
+    def showText(self, dialogue: TextDialogue):
+        self.isPaused = True
+        self.dialogue = dialogue
 
     def update(self, time: int):
+        if(self.isPaused):
+            return
+
         for entity in self.entities:
             if(entity.isNotOnScreen(self.cameraPos)):
                 continue
@@ -109,6 +122,8 @@ class Level:
             particle.renderMinusOffset(screen, self.cameraPos)
         for i in range(self.player.health):
             Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2 * i + 2, 2))
+        if(self.dialogue != None):
+            self.dialogue.render(screen)
 
     def addLevelObject(self, object: LevelObject):
         self.levelObjects.append(object)
@@ -130,4 +145,10 @@ class Level:
     def mousePressed(self, button: int, pos: Point):
         if(button != 1):
             return
-        self.player.attack()
+        if(not self.isPaused):
+            self.player.attack()
+            return
+        if(self.dialogue != None):
+            if(self.dialogue.increaseIndex() < 0):
+                self.dialogue = None
+                self.isPaused = False

@@ -11,7 +11,7 @@ class Slime(Entity):
 
     def __init__(self, pos: Point):
         super().__init__(pos)
-        self.speed = 0.05
+        self.speed = 0.1
         self.direction: Directions = Directions.RIGHT
         self.damage: int = 1
         self.attackCooldown: int = 0

@@ -6,6 +6,7 @@ from enum import Enum
 class LevelCreatorTools(Enum):
     PLACE = 0
     REMOVE = 1
+    CONFIG = 2
 
 class LevelCreatorTool(GameObject):
     def __init__(self, surface: pygame.Surface, type: LevelCreatorTools):

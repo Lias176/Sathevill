@@ -96,6 +96,26 @@ class Player(Entity):
 
         super().update(time)
 
+    def move(self, x: int, y: int):
+        super().move(x, y)
+        for entity in Game.currentLevel.entities:
+            if(entity.isNotOnScreen(Game.currentLevel.cameraPos)):
+                continue
+            if(entity.interactTextStr != None):
+                aimRect: pygame.Rect = self.getAimRect()
+                if(entity.colliderect(aimRect)):
+                    if(not entity.renderInteractText):
+                        entity.activateInteractText()
+                elif(entity.renderInteractText):
+                    entity.renderInteractText = False
+    
+    def interact(self):
+        for entity in Game.currentLevel.entities:
+            if(entity.renderInteractText == False):
+                continue
+            entity.interact()
+            break
+
     def takeDamage(self, damageAmount: int):
         super().takeDamage(damageAmount, False)
         self.invincible = True
@@ -114,23 +134,25 @@ class Player(Entity):
         self.isAlive = True
         self.health = self.maxHealth
 
-    def attack(self):
-        if(not self.canAttack):
-            return
-        attackRect: pygame.Rect
+    def getAimRect(self) -> pygame.Rect:
         centerPos: Point = self.getCenterPos()
         match(self.direction):
             case Directions.UP:
-                attackRect = pygame.Rect(centerPos.x - 40, self.y - 50, 80, 50)
+                return pygame.Rect(centerPos.x - 40, self.y - 50, 80, 50)
             case Directions.RIGHT:
-                attackRect = pygame.Rect(self.x + 36, centerPos.y - 40, 50, 80)
+                return pygame.Rect(self.x + 36, centerPos.y - 40, 50, 80)
             case Directions.LEFT:
-                attackRect = pygame.Rect(self.x - 45, centerPos.y - 40, 50, 80)
+                return pygame.Rect(self.x - 45, centerPos.y - 40, 50, 80)
             case Directions.DOWN:
-                attackRect = pygame.Rect(centerPos.x - 40, self.y + 90, 80, 50)
+                return pygame.Rect(centerPos.x - 40, self.y + 90, 80, 50)
+
+    def attack(self):
+        if(not self.canAttack):
+            return
+        centerPos: Point = self.getCenterPos()
         hasHitEnemy: bool = False
         for entity in Game.currentLevel.entities:
-            if(entity == self or entity.isNotOnScreen(Game.currentLevel.cameraPos) or not entity.colliderect(attackRect)):
+            if(entity == self or entity.isNotOnScreen(Game.currentLevel.cameraPos) or not entity.colliderect(self.getAimRect()) or not entity.isEnemy):
                 continue
             hasHitEnemy = True
             entity.takeDamage(1)

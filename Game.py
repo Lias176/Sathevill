@@ -7,6 +7,7 @@ from Animation import Animation
 from LevelObject import LevelObject
 from Entity import Entity
 from Timer import Timer
+from InputBox import InputBox
 
 class GameState(Enum):
     IN_LEVEL = 0
@@ -33,6 +34,7 @@ def mouseClicked(button: int, pos: Point):
         case GameState.IN_LEVEL:
             currentLevel.mousePressed(button, pos)
     Button.mouseClicked(button, pos)
+    InputBox.onClick(button, pos)
 
 def mouseUp(button: int):
     match state:
@@ -45,8 +47,9 @@ def update(time: int):
             currentLevel.update(time)
         case GameState.IN_LEVEL_CREATOR:
             currentLevelCreator.update()
-    for animation in Animation.animations:
-        animation.update(time)
+    if(state != GameState.IN_LEVEL or currentLevel.isPaused == False):
+        for animation in Animation.animations:
+            animation.update(time)
     for timer in Timer.timers:
         timer.update(time)
 
@@ -66,6 +69,7 @@ def keyPressed(key: int):
             currentLevel.keyPressed(key)
         case GameState.IN_LEVEL_CREATOR:
             currentLevelCreator.keyPressed(key)
+            InputBox.onKey(key)
         case GameState.IN_MENU:
             MenuManager.keyPressed(key)
 

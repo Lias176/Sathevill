@@ -1,4 +1,4 @@
-import pygame, json, Game, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC
+import pygame, json, Game, Textures, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC
 from GameObject import GameObject
 from Point import Point
 from io import TextIOWrapper
@@ -7,6 +7,11 @@ from LevelCreatorTool import LevelCreatorTool
 from LevelCreatorTool import LevelCreatorTools
 from Entity import Entity
 from Entities.Player import Player
+from LevelObjectProperty import PropertyTypes
+from TextBox import TextBox
+from UIElement import UIElement
+from Button import PositionOffset
+from InputBoxList import InputBoxList
 
 class LevelCreator:
     def __init__(self):
@@ -37,9 +42,15 @@ class LevelCreator:
 
         self.placeTool: LevelCreatorTool = LevelCreatorTool(self.selectedType(Point(0, 0)).surface, LevelCreatorTools.PLACE)
         self.removeTool: LevelCreatorTool = LevelCreatorTool(pygame.image.load("images\\remove.png"), LevelCreatorTools.REMOVE)
-        self.tools: list[LevelCreatorTool] = [ self.placeTool, self.removeTool ]
+        self.configTool: LevelCreatorTool = LevelCreatorTool(Textures.GEAR.surface, LevelCreatorTools.CONFIG)
+        self.tools: list[LevelCreatorTool] = [ self.placeTool, self.removeTool, self.configTool ]
         self.selectedTool: LevelCreatorTool = self.tools[0]
         self.updateToolPanel()
+
+        self.configBGPanel = GameObject(pygame.Surface((Game.screen.get_width() / 6, Game.screen.get_height() - self.toolBGPanel.surface.get_height()), pygame.SRCALPHA).convert_alpha(), Point(Game.screen.get_width() - Game.screen.get_width() / 6, 0 + self.toolBGPanel.surface.get_height()))
+        self.configBGPanel.surface.fill(pygame.Color(40, 40, 40, 200))
+        self.renderConfigPanel: bool = False
+        self.configUI: list[UIElement] = []
 
     def updatePreviewObject(self):
         self.placePreviewObject: LevelObject = self.selectedType(Point(0, 0))
@@ -55,9 +66,8 @@ class LevelCreator:
             else:
                 tool.resize(width = 50)
             toolBGPanelWidth += tool.surface.get_width() + 25
-        self.toolBGPanel: GameObject = GameObject(pygame.Surface((toolBGPanelWidth, 75)), Point(Game.screen.get_width() - toolBGPanelWidth, 0))
-        self.toolBGPanel.surface.fill(pygame.Color(40, 40, 40))
-        self.selectObjectBGPanel.surface.set_alpha(200)
+        self.toolBGPanel: GameObject = GameObject(pygame.Surface((toolBGPanelWidth, 75), pygame.SRCALPHA).convert_alpha(), Point(Game.screen.get_width() - toolBGPanelWidth, 0))
+        self.toolBGPanel.surface.fill(pygame.Color(40, 40, 40, 200))
         for i, tool in enumerate(self.tools):
             tool.pos = Point(self.toolBGPanel.pos.x + 25 if i == 0 else self.tools[i - 1].pos.x + self.tools[i - 1].surface.get_width() + 25, 12.5)
         self.selectedTool.addBoxBorder(pygame.Color(255, 255, 255))
@@ -65,15 +75,23 @@ class LevelCreator:
     def render(self, screen: pygame.Surface):
         for i in self.layerLevelObjects:
             for levelObject in self.layerLevelObjects[i]:
+                if(levelObject.isNotOnScreen(self.cameraPos.toTuple())):
+                    continue
                 levelObject.renderMinusOffset(screen, self.cameraPos.toTuple())
         self.selectObjectBGPanel.render(screen)
         for selectableObject in self.selectableObjects:
+            if(selectableObject.isNotOnScreen((0, 0))):
+                continue
             selectableObject.render(screen)
         self.toolBGPanel.render(screen)
         for tool in self.tools:
             tool.render(screen)
         if(self.canPlaceAt(Point.fromTuple(pygame.mouse.get_pos())) and self.selectedTool.type == LevelCreatorTools.PLACE):
             self.placePreviewObject.renderMinusOffset(screen, self.cameraPos.toTuple())
+        if(self.renderConfigPanel):
+            self.configBGPanel.render(screen)
+            for uiElement in self.configUI:
+                uiElement.render(screen)
 
     def update(self):
         mouse: tuple[bool, bool, bool] = pygame.mouse.get_pressed(3)
@@ -82,6 +100,9 @@ class LevelCreator:
         if(mouse[2]):
             self.rightHeld()
         self.placePreviewObject.pos = CoordUtils.snapToLevelGrid(Point.fromTuple(pygame.mouse.get_pos()).offset(self.cameraPos))
+        for levelObject in self.levelObjects:
+            if(levelObject.properties != None):
+                print(levelObject.properties[0].var)
 
     def keyPressed(self, key: int):
         match(key):
@@ -118,9 +139,29 @@ class LevelCreator:
                     self.selectedTool = tool
                     self.updateToolPanel()
                     break
+            elif(self.selectedTool.type == LevelCreatorTools.CONFIG):
+                for levelObject in self.levelObjects:
+                    if(levelObject.properties == None or not pygame.Rect(levelObject.pos.x - self.cameraPos.x, levelObject.pos.y - self.cameraPos.y, levelObject.surface.get_width(), levelObject.surface.get_height()).collidepoint(pos.toTuple())):
+                        continue
+                    self.openConfigMenu(levelObject)
+                    break
         elif(button == 3):
             self.rightDownMousePos = pos
             self.rightDownCamPos = self.cameraPos
+
+    def openConfigMenu(self, levelObject: LevelObject):
+        for uiElement in self.configUI:
+            if(type(uiElement) == InputBoxList):
+                uiElement.remove()
+        self.configUI = []
+        self.renderConfigPanel = True
+        for property in levelObject.properties:
+            titleBox: TextBox = TextBox(property.name, Point(self.configBGPanel.pos.x + 10, (self.configUI[-1].pos.y + 10) if len(self.configUI) > 0 else self.configBGPanel.pos.y + 10), offset = PositionOffset.TOP_LEFT, font = pygame.font.Font("fonts\\Roboto-Regular.ttf", 25), fontColor = pygame.Color(255, 255, 255))
+            self.configUI.append(titleBox)
+            match(property.type):
+                case PropertyTypes.STRINGLISTLIST:
+                    boxList: InputBoxList = InputBoxList(Point(self.configBGPanel.pos.x + 10, self.configUI[-1].pos.y + self.configUI[-1].height + 10), self.configBGPanel.surface.get_width() - 20, 100, property.var)
+                    self.configUI.append(boxList)
 
     def mouseUp(self, button: int):
         if(button == 1):

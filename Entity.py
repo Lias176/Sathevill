@@ -50,8 +50,6 @@ class Entity(LevelObject):
                             self.renderingLayer = 0
                             Game.currentLevel.layerEntities[1].remove(self)
                             Game.currentLevel.layerEntities[0].append(self)
-            else:
-                continue
 
             # check collision
             updatedXRect: pygame.Rect = pygame.Rect(self.x + x, self.y + self.surface.get_height(), self.surface.get_width(), 1)
@@ -104,3 +102,6 @@ class Entity(LevelObject):
         super().renderAt(screen, pos)
         if(self.isEnemy):
             screen.blit(self.healthBar, (pos[0] + self.surface.get_width() / 2 - 50, pos[1] - 20))
+
+    def interact(self):
+        pass

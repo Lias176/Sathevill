@@ -6,6 +6,7 @@ from LevelCreator import LevelCreator
 from UIElement import UIElement
 from TextBox import TextBox
 from Point import Point
+from InputBox import InputBox
 
 class Menus(Enum):
     MainMenu = 0,
@@ -23,7 +24,7 @@ def keyPressed(key : int):
         case pygame.K_ESCAPE:
             match(currentMenu):
                 case Menus.PauseMenu:
-                    Game.currentLevel.pause(False)
+                    Game.currentLevel.openPauseMenu(False)
                 case Menus.LevelCreatorMenu:
                     Game.currentLevelCreator.openMenu(False)
                 
@@ -111,7 +112,7 @@ def optionsMenu_backButtonOnClick():
 
 # PauseMenu
 def pauseMenu_continueButtonOnClick():
-    Game.currentLevel.pause(False)
+    Game.currentLevel.openPauseMenu(False)
 
 def pauseMenu_optionsButtonOnClick():
     setMenu(Menus.OptionsMenu)
@@ -127,6 +128,9 @@ def deathMenu_respawnOnClick():
 
 #LevelCreatorMenu
 def levelCreatorMenu_backToMainMenuOnClick():
+    for uiElement in Game.currentLevelCreator.configUI:
+            if(type(uiElement) == InputBox):
+                uiElement.remove()
     Game.currentLevelCreator = None
     setMenu(Menus.MainMenu)
 
