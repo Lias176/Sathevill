@@ -12,9 +12,9 @@ class Player(Entity):
 
     def __init__(self, pos: Point):
         self.WALK_UP_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_UP_0.surface, Textures.PLAYER_WALK_UP_1.surface ], 250, True)
-        self.WALK_RIGHT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_RIGHT_0.surface, Textures.PLAYER_WALK_RIGHT_1.surface ], 250, True)
+        self.WALK_RIGHT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_RIGHT_0.surface, Textures.PLAYER_RIGHT.surface,  Textures.PLAYER_WALK_RIGHT_1.surface, Textures.PLAYER_RIGHT.surface ], 250, True)
         self.WALK_DOWN_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_DOWN_0.surface, Textures.PLAYER_WALK_DOWN_1.surface ], 250, True)
-        self.WALK_LEFT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_LEFT_0.surface, Textures.PLAYER_WALK_LEFT_1.surface ], 250, True)
+        self.WALK_LEFT_ANIMATION = Animation(self, [ Textures.PLAYER_WALK_LEFT_0.surface, Textures.PLAYER_LEFT.surface, Textures.PLAYER_WALK_LEFT_1.surface, Textures.PLAYER_LEFT.surface ], 250, True)
 
         super().__init__(pos)
         self.invincible: bool = False
