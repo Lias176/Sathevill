@@ -1,4 +1,4 @@
-import pygame, math, Textures, Game
+import pygame, math, Textures, Game, time
 from Timer import Timer
 from Entity import Entity
 from Point import Point
@@ -95,8 +95,6 @@ class Player(Entity):
         super().update(time)
 
     def checkRenderInteraction(self, object: LevelObject):
-        if(object.interactTextStr == None):
-            return
         aimRect: pygame.Rect = self.getAimRect()
         if(object.colliderect(aimRect)):
             if(not object.renderInteractText):
@@ -106,11 +104,7 @@ class Player(Entity):
 
     def move(self, x: int, y: int):
         super().move(x, y)
-        for entity in Game.currentLevel.entities:
-            if(entity.isNotOnScreen(Game.currentLevel.cameraPos)):
-                continue
-            self.checkRenderInteraction(entity)
-        for obj in Game.currentLevel.levelObjects:
+        for obj in Game.currentLevel.interactableObjects:
             if(obj.isNotOnScreen(Game.currentLevel.cameraPos)):
                 continue
             self.checkRenderInteraction(obj)

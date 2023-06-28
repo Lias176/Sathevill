@@ -8,8 +8,8 @@ class Zombie(Enemy):
     surfaceLeft = Textures.ZOMBIE_LEFT.surface.convert_alpha()
     surface = surfaceRight
 
-    def __init__(self, pos: Point):
-        super().__init__(pos)
+    def __init__(self, pos: Point, onDamage: callable = None):
+        super().__init__(pos, onDamage)
         self.speed = 0.15
         self.attackCooldownAmount = 1500
         self.seeDistance = 800

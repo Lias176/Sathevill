@@ -1,4 +1,4 @@
-import json, MenuManager, Game, pygame, Textures, CoordUtils
+import json, MenuManager, Game, pygame, Textures, CoordUtils, random, math
 from Entities.Player import Player
 from Entity import Entity
 from Point import Point
@@ -7,6 +7,10 @@ from LevelObject import LevelObject
 from GameObject import GameObject
 from TextDialogue import TextDialogue
 from LevelObjectProperty import LevelObjectProperty
+from Entities.Zombie import Zombie
+from Entities.Slime import Slime
+from Enemy import Enemy
+from TextBox import TextBox
 
 class Level:
     def __init__(self, file: str):
@@ -16,11 +20,17 @@ class Level:
         self.addEntity(self.player)
         self.levelObjects: list[LevelObject] = []
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
+        self.interactableObjects: list[LevelObject] = []
+        self.collisionObjects: list[LevelObject] = []
         self.particles: list[GameObject] = []
         self.saveFilePath: str = file
         self.dialogue: TextDialogue = None
+        self.raid: list[Enemy] = []
         self.isPaused: bool = False
         self.cameraPos: tuple[int, int] = (0, 0)
+        self.bossBar: GameObject = None
+        self.bossBarTitle: TextBox = None
+        self.maxRaidHealth: int = 0
         try:
             saveFile: TextIOWrapper = open(self.saveFilePath, "r")
             save: dict[str, any] = json.loads(saveFile.read())
@@ -50,7 +60,46 @@ class Level:
                     self.addEntity(object)
                 else:
                     self.addLevelObject(object)
+                if(objectType.interactTextStr != None):
+                    self.interactableObjects.append(object)
+                if(object.collisionRect != None):
+                    self.collisionObjects.append(object)
+        self.spawnRaid()
 
+    def getRandomEnemyPos(self, type: type[Enemy]):
+        pos: Point = Point(random.randint(-950, 2358), random.randint(-340, 2459))
+        while(type.collidesList(self.collisionObjects, pos)):
+            pos = Point(random.randint(-950, 2358), random.randint(-340, 2459))
+        return pos
+
+    def onRaidDamage(self):
+        self.updateRaidBossBar()
+
+    def updateRaidBossBar(self):
+        self.bossBar = GameObject(pygame.Surface((Game.screen.get_width() * 0.8, 10)), Point(Game.screen.get_width() * 0.1, 45))
+        self.bossBar.surface.fill(pygame.Color(255, 255, 255))
+        raidHealth = 0
+        for enemy in self.raid:
+            raidHealth += enemy.health
+        if(raidHealth == 0):
+            return
+        healthRect: pygame.Rect = (0, 0, self.bossBar.surface.get_width() / (self.maxRaidHealth / raidHealth), 10)
+        self.bossBar.surface.fill(pygame.Color(255, 0, 0), healthRect)
+        if(self.bossBarTitle == None or self.bossBarTitle.text != "Monster"):
+            self.bossBarTitle = TextBox("Monster", Point(0, Game.screen.get_height() / 2 - 20), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 40), fontColor = pygame.Color(255, 255, 255))
+
+    def spawnRaid(self):
+        self.raid = []
+        for i in range(8 - math.floor(math.log(random.random() * 5 + 1, 1.75))):
+            type: type[Enemy] = Zombie if random.random() >= 0.8 else Slime
+            pos: Point = self.getRandomEnemyPos(type)
+            enemy: Enemy = Zombie(pos, self.onRaidDamage) if random.random() >= 0.9 else Slime(pos, self.onRaidDamage)
+            self.addEntity(enemy)
+            self.raid.append(enemy)
+        for enemy in self.raid:
+            self.maxRaidHealth += enemy.maxHealth
+        self.updateRaidBossBar()
+            
     def addEntity(self, entity: Entity):
         self.entities.append(entity)
         self.layerEntities[1].append(entity)
@@ -58,6 +107,14 @@ class Level:
     def removeEntity(self, entity: Entity):
         self.entities.remove(entity)
         self.layerEntities[entity.renderingLayer].remove(entity)
+        try:
+            self.raid.remove(entity)
+        except:
+            pass
+        try:
+            self.interactableObjects.remove(entity)
+        except:
+            pass
 
     def join(self):
         MenuManager.setMenu(None)
@@ -134,6 +191,9 @@ class Level:
             Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2 * i + 2, 2))
         if(self.dialogue != None):
             self.dialogue.render(screen)
+        if(len(self.raid) > 0):
+            self.bossBar.render(screen)
+            self.bossBarTitle.render(screen)
 
     def addLevelObject(self, object: LevelObject):
         self.levelObjects.append(object)
@@ -146,6 +206,14 @@ class Level:
     def removeLevelObject(self, object: LevelObject):
         self.levelObjects.remove(object)
         self.layerLevelObjects[object.layer].remove(object)
+        try:
+            self.interactableObjects.remove(object)
+        except:
+            pass
+        try:
+            self.collisionObjects.remove(object)
+        except:
+            pass
     
     def respawn(self):
         self.player.respawn()

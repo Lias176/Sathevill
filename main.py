@@ -1,4 +1,4 @@
-import sys, pygame, os
+import sys, pygame, os, time
 from Point import Point
 
 if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):

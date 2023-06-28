@@ -43,5 +43,13 @@ class LevelObject(GameObject):
         pass
 
     @classmethod
+    def collidesList(self, list: list[GameObject], pos: Point) -> bool:
+        rect: pygame.Rect = pygame.Rect(pos.x, pos.y, self.surface.get_width(), self.surface.get_height())
+        for obj in list:
+            if(obj.colliderect(rect)):
+                return True
+        return False
+
+    @classmethod
     def getClassById(self, id: str) -> type[LevelObject]:
         return self.idClasses[id]

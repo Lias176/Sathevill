@@ -10,7 +10,7 @@ class Enemy(Entity):
     surfaceLeft: pygame.Surface = None
     surface = surfaceRight
 
-    def __init__(self, pos: Point):
+    def __init__(self, pos: Point, onDamage: callable = None):
         super().__init__(pos)
         self.attackCooldown: int = 0
         self.seeDistance: int = 350
@@ -18,6 +18,12 @@ class Enemy(Entity):
         self.damage: int = 1
         self.direction: Directions = Directions.RIGHT
         self.attackCooldownAmount: int = 2000
+        self.onDamage: callable = onDamage
+
+    def takeDamage(self, damageAmount: int, removeFromList: bool = True):
+        super().takeDamage(damageAmount, removeFromList)
+        if(self.onDamage != None):
+            self.onDamage()
 
     def update(self, time: int):
         super().update(time)
