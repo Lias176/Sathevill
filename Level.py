@@ -57,7 +57,7 @@ class Level:
 
     def removeEntity(self, entity: Entity):
         self.entities.remove(entity)
-        self.layerEntities[entity.layer].remove(entity)
+        self.layerEntities[entity.renderingLayer].remove(entity)
 
     def join(self):
         MenuManager.setMenu(None)

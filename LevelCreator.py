@@ -1,4 +1,4 @@
-import pygame, json, Game, Textures, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC
+import pygame, json, Game, Textures, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC, Entities.Zombie
 from GameObject import GameObject
 from Point import Point
 from io import TextIOWrapper
@@ -13,6 +13,7 @@ from TextBox import TextBox
 from UIElement import UIElement
 from Button import PositionOffset
 from InputBoxList import InputBoxList
+from Enemy import Enemy
 
 class LevelCreator:
     def __init__(self):
@@ -28,7 +29,9 @@ class LevelCreator:
         self.cameraPos: Point = Point(0, 0)
         classes: list[type[LevelObject]] = LevelObject.__subclasses__()
         classes.extend(Entity.__subclasses__())
+        classes.extend(Enemy.__subclasses__())
         classes.remove(Player)
+        classes.remove(Enemy)
         for levelObjectClass in classes:
             if(levelObjectClass == Entity):
                 continue

@@ -8,6 +8,7 @@ from LevelObject import LevelObject
 from Entity import Entity
 from Timer import Timer
 from InputBox import InputBox
+from Enemy import Enemy
 
 class GameState(Enum):
     IN_LEVEL = 0
@@ -25,6 +26,8 @@ def init(initScreen: pygame.Surface):
     for subclass in LevelObject.__subclasses__():
         LevelObject.idClasses[subclass.id] = subclass
     for subclass in Entity.__subclasses__():
+        LevelObject.idClasses[subclass.id] = subclass
+    for subclass in Enemy.__subclasses__():
         LevelObject.idClasses[subclass.id] = subclass
 
 def mouseClicked(button: int, pos: Point):
