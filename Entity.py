@@ -102,6 +102,3 @@ class Entity(LevelObject):
         super().renderAt(screen, pos)
         if(self.isEnemy):
             screen.blit(self.healthBar, (pos[0] + self.surface.get_width() / 2 - 50, pos[1] - 20))
-
-    def interact(self):
-        pass

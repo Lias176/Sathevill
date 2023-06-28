@@ -4,6 +4,7 @@ from Entity import Entity
 from Point import Point
 from Animation import Animation
 from Directions import Directions
+from LevelObject import LevelObject
 
 class Player(Entity):
     id = "player"
@@ -93,24 +94,37 @@ class Player(Entity):
 
         super().update(time)
 
+    def checkRenderInteraction(self, object: LevelObject):
+        if(object.interactTextStr == None):
+            return
+        aimRect: pygame.Rect = self.getAimRect()
+        if(object.colliderect(aimRect)):
+            if(not object.renderInteractText):
+                object.activateInteractText()
+        elif(object.renderInteractText):
+            object.renderInteractText = False
+
     def move(self, x: int, y: int):
         super().move(x, y)
         for entity in Game.currentLevel.entities:
             if(entity.isNotOnScreen(Game.currentLevel.cameraPos)):
                 continue
-            if(entity.interactTextStr != None):
-                aimRect: pygame.Rect = self.getAimRect()
-                if(entity.colliderect(aimRect)):
-                    if(not entity.renderInteractText):
-                        entity.activateInteractText()
-                elif(entity.renderInteractText):
-                    entity.renderInteractText = False
+            self.checkRenderInteraction(entity)
+        for obj in Game.currentLevel.levelObjects:
+            if(obj.isNotOnScreen(Game.currentLevel.cameraPos)):
+                continue
+            self.checkRenderInteraction(obj)
     
     def interact(self):
         for entity in Game.currentLevel.entities:
             if(entity.renderInteractText == False):
                 continue
             entity.interact()
+            break
+        for object in Game.currentLevel.levelObjects:
+            if(object.renderInteractText == False):
+                continue
+            object.interact()
             break
 
     def takeDamage(self, damageAmount: int):

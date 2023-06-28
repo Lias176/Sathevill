@@ -39,6 +39,9 @@ class LevelObject(GameObject):
     def getAbsoluteCollisionRect(self):
         return pygame.Rect(self.pos.x + self.collisionRect.left, self.pos.y + self.collisionRect.top, self.collisionRect.width, self.collisionRect.height)
 
+    def interact(self):
+        pass
+
     @classmethod
     def getClassById(self, id: str) -> type[LevelObject]:
         return self.idClasses[id]
