@@ -70,7 +70,7 @@ def setMenu(menu):
             ]
         case Menus.DeathMenu:
             uiElements = [
-                TextBox("Du bist gestorben!", Point(0, 115), pygame.font.Font("fonts\\Roboto-Bold.ttf", 60)),
+                TextBox("Du bist gestorben!", Point(0, 115), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 60)),
                 Button("Respawn", pygame.Rect(0, 30, 400, 50), deathMenu_respawnOnClick),
                 Button("Back to Main Menu", pygame.Rect(0, -30, 400, 50), deathMenu_backToMainMenuOnClick)
             ]

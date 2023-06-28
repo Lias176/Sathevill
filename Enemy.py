@@ -30,7 +30,7 @@ class Enemy(Entity):
         if(distance <= self.seeDistance and distance > self.attackDistance):
             angle: float = -1
             if(centerPos.x == playerCenterPos.x):
-                angle = 0
+                angle = 180 if playerCenterPos.y > centerPos.y else 0
             else:
                 angle = math.degrees(math.atan((centerPos.y - playerCenterPos.y) / (centerPos.x - playerCenterPos.x))) + (90 if playerCenterPos.x > centerPos.x else 270)
             if(angle > 180):

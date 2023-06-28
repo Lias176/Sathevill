@@ -7,8 +7,8 @@ from Button import PositionOffset
 class TextBox(UIElement):
     def __init__(self, text: str, pos: Point, offset: PositionOffset = PositionOffset.CENTER_SCREEN, font: pygame.font.Font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 30), fontColor: pygame.Color = pygame.Color(194, 194, 194)):
         super().__init__()
-        self.fontRender = GameObject(font.render(text, True, fontColor), Point(0, 0))
-        self.offset = offset
+        self.offset: PositionOffset = offset
+        self.fontRender: GameObject = GameObject(font.render(text, True, fontColor), Point(0, 0))
         if(self.offset == PositionOffset.CENTER_SCREEN):
             self.fontRender.pos = Point(Game.screen.get_width() / 2 - self.fontRender.surface.get_width() / 2, Game.screen.get_height() / 2 - self.fontRender.surface.get_height() / 2).offset(Point(pos.x, -pos.y))
         else:
@@ -16,6 +16,7 @@ class TextBox(UIElement):
         self.pos = self.fontRender.pos
         self.width = self.fontRender.surface.get_width()
         self.height = self.fontRender.surface.get_height()
+        print(self.offset)
 
     def render(self, screen: pygame.Surface):
         self.fontRender.render(screen)

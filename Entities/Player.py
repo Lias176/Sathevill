@@ -44,10 +44,7 @@ class Player(Entity):
             elif(directionPoint.y == 0):
                 angle = 90 if directionPoint.x == 1 else 270
             else:
-                if(directionPoint.y > 0):
-                    angle = math.degrees(math.atan(directionPoint.y / directionPoint.x))
-                else:
-                    angle = 180 + math.degrees(math.atan(directionPoint.y / directionPoint.x))
+                angle = math.degrees(math.atan(directionPoint.y / directionPoint.x)) + (180 if directionPoint.y <= 0 else 0)
                 if(angle < 0):
                     angle = 360 + angle
             if(angle == 0):
