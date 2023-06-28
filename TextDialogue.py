@@ -5,6 +5,8 @@ from Point import Point
 class TextDialogue:
     def __init__(self, texts: list[list[str]]) -> None:
         self.texts: list[list[str]] = texts
+        while(self.texts[-1] == [] and len(self.texts) >= 1):
+            self.texts.pop()
         self.bgObject: GameObject = GameObject(Textures.SPEECH_BUBBLE.surface, Point(0, 0))
         self.bgObject.resize(width = Game.screen.get_width() - 200)
         self.bgObject.pos = Point(Game.screen.get_width() / 2 - self.bgObject.surface.get_width() / 2, Game.screen.get_height() - self.bgObject.surface.get_height())

@@ -13,6 +13,9 @@ class Point:
     def toTuple(self) -> tuple[int, int]:
         return (self.x, self.y)
     
+    def toList(self) -> list[int]:
+        return [self.x, self.y]
+    
     def toString(self) -> str:
         return "x: " + str(self.x) + " y: " + str(self.y)
     

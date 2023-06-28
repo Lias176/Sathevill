@@ -6,6 +6,7 @@ from io import TextIOWrapper
 from LevelObject import LevelObject
 from GameObject import GameObject
 from TextDialogue import TextDialogue
+from LevelObjectProperty import LevelObjectProperty
 
 class Level:
     def __init__(self, file: str):
@@ -32,14 +33,23 @@ class Level:
             self.player.y = 0
             self.player.health = self.player.maxHealth
         levelFile: TextIOWrapper = open("level.json", "r")
-        level: dict[str, list[tuple[int, int]]] = json.loads(levelFile.read())
+        level: dict[str, list[list]] = json.loads(levelFile.read())
         for id in level.keys():
             objectType: type[LevelObject] = LevelObject.getClassById(id)
-            for pos in level[id]:
+            for obj in level[id]:
+                pos: Point = Point(obj[0], obj[1])
+                object: LevelObject = objectType(CoordUtils.pointFromBlock(pos))
+                for i in range(2, len(obj)):
+                    property: LevelObjectProperty = LevelObjectProperty.fromString(obj[i][0], obj[i][1], obj[i][2])
+                    index: int = i - 2
+                    if(len(object.properties) < index):
+                        object.properties.append(property)
+                    else:
+                        object.properties[index] = property
                 if(objectType.isEntity):
-                    self.addEntity(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+                    self.addEntity(object)
                 else:
-                    self.addLevelObject(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+                    self.addLevelObject(object)
 
     def addEntity(self, entity: Entity):
         self.entities.append(entity)

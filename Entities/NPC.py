@@ -17,4 +17,4 @@ class NPC(Entity):
 
     def interact(self):
         self.renderInteractText = False
-        Game.currentLevel.showText(TextDialogue(self.texts))
+        Game.currentLevel.showText(TextDialogue(self.properties[0].var))

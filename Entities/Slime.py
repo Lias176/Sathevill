@@ -15,6 +15,8 @@ class Slime(Entity):
         self.direction: Directions = Directions.RIGHT
         self.damage: int = 1
         self.attackCooldown: int = 0
+        self.seeDistance: int = 350
+        self.attackDistance: int = 65
 
     def update(self, time: int):
         super().update(time)
@@ -24,7 +26,7 @@ class Slime(Entity):
         distance = centerPos.getDistance(playerCenterPos)
         if(self.attackCooldown > 0):
             self.attackCooldown -= time
-        if(distance < 350 and distance > 65):
+        if(distance <= self.seeDistance and distance > self.attackDistance):
             angle: float = -1
             if(centerPos.x == playerCenterPos.x):
                 angle = 0

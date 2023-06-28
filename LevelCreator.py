@@ -8,6 +8,7 @@ from LevelCreatorTool import LevelCreatorTools
 from Entity import Entity
 from Entities.Player import Player
 from LevelObjectProperty import PropertyTypes
+from LevelObjectProperty import LevelObjectProperty
 from TextBox import TextBox
 from UIElement import UIElement
 from Button import PositionOffset
@@ -100,9 +101,6 @@ class LevelCreator:
         if(mouse[2]):
             self.rightHeld()
         self.placePreviewObject.pos = CoordUtils.snapToLevelGrid(Point.fromTuple(pygame.mouse.get_pos()).offset(self.cameraPos))
-        for levelObject in self.levelObjects:
-            if(levelObject.properties != None):
-                print(levelObject.properties[0].var)
 
     def keyPressed(self, key: int):
         match(key):
@@ -219,11 +217,15 @@ class LevelCreator:
             MenuManager.setMenu(None)
 
     def saveToFile(self, path: str):
-        level: dict[str, list[tuple[int, int]]] = {}
+        level: dict[str, list[list]] = {}
         for levelObject in self.levelObjects:
             if not levelObject.id in level:
-                level[levelObject.id]: list[tuple[int, int]] = []
-            level[levelObject.id].append(CoordUtils.blockFromPoint(levelObject.pos).toTuple())
+                level[levelObject.id]: list[list] = []
+            listObj = CoordUtils.blockFromPoint(levelObject.pos).toList()
+            if(levelObject.properties != None):
+                for property in levelObject.properties:
+                    listObj.append([property.name, property.typeAsString(), property.var])
+            level[levelObject.id].append(listObj)
         levelFile: TextIOWrapper = open(path, "w")
         json.dump(level, levelFile)
         levelFile.close()
@@ -235,6 +237,16 @@ class LevelCreator:
         level: dict[str, list[tuple[int, int]]] = json.loads(levelFile.read())
         for id in level.keys():
             objectType: type[LevelObject] = LevelObject.getClassById(id)
-            for pos in level[id]:
-                self.addLevelObject(objectType(CoordUtils.pointFromBlock(Point.fromTuple(pos))))
+            for obj in level[id]:
+                pos: Point = Point(obj[0], obj[1])
+                object: LevelObject = objectType(CoordUtils.pointFromBlock(pos))
+                for i in range(2, len(obj)):
+                    property: LevelObjectProperty = LevelObjectProperty.fromString(obj[i][0], obj[i][1], obj[i][2])
+                    index: int = i - 2
+                    if(len(object.properties) < index):
+                        object.properties.append(property)
+                    else:
+                        object.properties[index] = property
+                self.addLevelObject(object)
+
         self.openMenu(False)
