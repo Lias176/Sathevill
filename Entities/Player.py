@@ -1,10 +1,12 @@
-import pygame, math, Textures, Game, time
+import pygame, math, Textures, Game, CoordUtils
 from Timer import Timer
 from Entity import Entity
 from Point import Point
 from Animation import Animation
 from Directions import Directions
 from LevelObject import LevelObject
+from LevelObjects.House4 import House4
+from LevelObjects.MonsterBaseEntry import MonsterBaseEntry
 
 class Player(Entity):
     id = "player"
@@ -98,7 +100,7 @@ class Player(Entity):
         aimRect: pygame.Rect = self.getAimRect()
         rect: pygame.Rect = object.getRect() if object.interactRect == None else object.getAbsoluteInteractRect()
         if(rect.colliderect(aimRect)):
-            if(not object.renderInteractText):
+            if(not object.renderInteractText and not (type(object) == House4 and object.properties[0].var == "") and not (type(object) == MonsterBaseEntry and Game.currentLevel.currentQuest < 5)):
                 object.activateInteractText()
         elif(object.renderInteractText):
             object.renderInteractText = False

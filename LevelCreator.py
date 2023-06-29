@@ -1,4 +1,4 @@
-import pygame, json, Game, Textures, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC, Entities.NPC1, Entities.Zombie, LevelObjects.WoodWall, LevelObjects.DoorBlock
+import pygame, json, Game, Textures, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC, Entities.NPC1, Entities.Zombie, LevelObjects.WoodWall, LevelObjects.DoorBlock, LevelObjects.StoneWall, Entities.Giantzombie
 from GameObject import GameObject
 from Point import Point
 from io import TextIOWrapper

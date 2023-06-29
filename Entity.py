@@ -2,11 +2,14 @@ import pygame, math, Game
 from LevelObject import LevelObject
 from Point import Point
 from Timer import Timer
+from GameObject import GameObject
+from TextBox import TextBox
 
 class Entity(LevelObject):
     layer = 1
     isEntity = True
     isEnemy: bool = False
+    isBoss: bool = False
 
     def __init__(self, pos: Point):
         super().__init__(pos)
@@ -19,15 +22,25 @@ class Entity(LevelObject):
         self.renderingLayer: int = 1
         self.xVelocity: int = 0
         self.yVelocity: int = 0
+        self.bossBar: GameObject = None
         self.healthBar: pygame.Surface = pygame.Surface((100, 10))
+        self.bossBarTitle = None
         self.updateHealthBar()
 
     def updateHealthBar(self):
-        if(not self.isEnemy):
-            return
-        self.healthBar.fill(pygame.Color(255, 255, 255))
-        healthRect: pygame.Rect = (0, 0, 100 / (self.maxHealth / self.health), 10)
-        self.healthBar.fill(pygame.Color(255, 0, 0), healthRect)
+        if(self.isBoss):
+            self.bossBar = GameObject(pygame.Surface((Game.screen.get_width() * 0.8, 10)), Point(Game.screen.get_width() * 0.1, 45))
+            self.bossBar.surface.fill(pygame.Color(255, 255, 255))
+            healthRect: pygame.Rect = (0, 0, self.bossBar.surface.get_width() / (self.maxHealth / self.health), 10)
+            self.bossBar.surface.fill(pygame.Color(255, 0, 0), healthRect)
+            if(self.bossBarTitle == None):
+                self.bossBarTitle = TextBox("Riesenzombie", Point(0, Game.screen.get_height() / 2 - 20), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 40), fontColor = pygame.Color(255, 255, 255))
+        else:
+            if(not self.isEnemy):
+                return
+            self.healthBar.fill(pygame.Color(255, 255, 255))
+            healthRect: pygame.Rect = (0, 0, 100 / (self.maxHealth / self.health), 10)
+            self.healthBar.fill(pygame.Color(255, 0, 0), healthRect)
 
     def move(self, x: int, y: int):
         updatedX: bool = False
@@ -109,5 +122,8 @@ class Entity(LevelObject):
 
     def renderAt(self, screen: pygame.Surface, pos: tuple[int, int]):
         super().renderAt(screen, pos)
-        if(self.isEnemy):
+        if(self.isBoss):
+            self.bossBar.render(screen)
+            self.bossBarTitle.render(screen)
+        elif(self.isEnemy):
             screen.blit(self.healthBar, (pos[0] + self.surface.get_width() / 2 - 50, pos[1] - 20))

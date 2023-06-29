@@ -6,7 +6,7 @@ if(os.path.isdir(os.path.expanduser("~\\sathevill")) == False):
 
 pygame.init()
 
-screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
+screen = pygame.display.set_mode(flags = pygame.FULLSCREEN)
 clock = pygame.time.Clock()
 
 import Game, MenuManager

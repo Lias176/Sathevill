@@ -16,3 +16,4 @@ class Zombie(Enemy):
         self.attackDistance = 100
         self.maxHealth = 5
         self.health = self.maxHealth
+        self.isBoss = False

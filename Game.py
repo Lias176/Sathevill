@@ -1,4 +1,4 @@
-import MenuManager, Button, pygame
+import MenuManager, Button, pygame, math, Textures
 from Point import Point
 from Level import Level
 from enum import Enum
@@ -9,6 +9,8 @@ from Entity import Entity
 from Timer import Timer
 from InputBox import InputBox
 from Enemy import Enemy
+from GameObject import GameObject
+from threading import Thread
 
 class GameState(Enum):
     IN_LEVEL = 0
@@ -20,6 +22,14 @@ currentLevel: Level = None
 screen: pygame.Surface = None
 currentLevelCreator: LevelCreator = None
 
+def loadNightOverlay():
+        Textures.NIGHT_OVERLAY = GameObject(pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA).convert_alpha(), Point(0, 0))
+        screenMidX: int = screen.get_width() / 2
+        screenMidY: int = screen.get_height() / 2
+        for y in range(Textures.NIGHT_OVERLAY.surface.get_height()):
+            for x in range(Textures.NIGHT_OVERLAY.surface.get_width()):
+                Textures.NIGHT_OVERLAY.surface.set_at((x, y), pygame.Color(0, 0, 0, min(math.floor(math.sqrt((x - screenMidX) ** 2 + (y - screenMidY) ** 2) / 1.75), 255)))
+
 def init(initScreen: pygame.Surface):
     global screen
     screen = initScreen
@@ -29,6 +39,8 @@ def init(initScreen: pygame.Surface):
         LevelObject.idClasses[subclass.id] = subclass
     for subclass in Enemy.__subclasses__():
         LevelObject.idClasses[subclass.id] = subclass
+    thread: Thread = Thread(target = loadNightOverlay)
+    thread.start()
 
 def mouseClicked(button: int, pos: Point):
     match state:

@@ -1,4 +1,4 @@
-import pygame, sys, functools, Game, os, tkinter, Level
+import pygame, sys, functools, Game, os, tkinter, Level, Textures
 from enum import Enum
 from tkinter import filedialog
 from Button import Button
@@ -28,8 +28,8 @@ def keyPressed(key : int):
                 case Menus.LevelCreatorMenu:
                     Game.currentLevelCreator.openMenu(False)
                 
-def render(screen : pygame.Surface):
-    screen.fill(pygame.Color(15, 15, 15))
+def render(screen: pygame.Surface):
+    Textures.MENU_BG.render(screen)
     for uiElement in uiElements:
         uiElement.render(screen)
 
@@ -45,6 +45,7 @@ def setMenu(menu):
     match menu:
         case Menus.MainMenu:
             uiElements = [
+                TextBox("Sathevill", Point(0, 300), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 150), fontColor = pygame.Color(255, 255, 255, 135)),
                 Button("Play", pygame.Rect(0, 90, 400, 50), mainMenu_playButtonOnClick),
                 Button("Options", pygame.Rect(0, 30, 400, 50), mainMenu_optionsButtonOnClick),
                 Button("Level creator", pygame.Rect(0, -30, 400, 50), mainMenu_levelCreatorButtonOnClick),

@@ -11,6 +11,10 @@ from Entities.Zombie import Zombie
 from Entities.Slime import Slime
 from Enemy import Enemy
 from TextBox import TextBox
+from threading import Thread
+from Entities.NPC import NPC
+from LevelObjects.Water import Water
+from LevelObjects.WoodFloor import WoodFloor
 
 class Level:
     def __init__(self, file: str):
@@ -29,8 +33,11 @@ class Level:
         self.currentQuest: int = None
         self.cameraPos: tuple[int, int] = (0, 0)
         self.bossBar: GameObject = None
+        self.raidHealth: int = 0
         self.bossBarTitle: TextBox = None
+        self.questDisplay: GameObject = None
         self.overWorldPos: Point = None
+        self.isNight: bool = False
         self.maxRaidHealth: int = 0
         self.loadFile("levels\\level.json")
 
@@ -38,8 +45,9 @@ class Level:
         self.entities = []
         self.layerEntities = { 0: [], 1: [] }
         self.addEntity(self.player)
-        for raidEnemy in self.raid:
-            self.addEntity(raidEnemy)
+        if(path == "levels\\level.json"):
+            for raidEnemy in self.raid:
+                self.addEntity(raidEnemy)
         self.levelObjects = []
         self.layerLevelObjects = {}
         self.interactableObjects = []
@@ -66,6 +74,28 @@ class Level:
                     self.interactableObjects.append(object)
                 if(object.collisionRect != None):
                     self.collisionObjects.append(object)
+        if(self.currentQuest != None):
+            if(self.currentQuest >= 1 and self.currentQuest <= 3):
+                for entity in Game.currentLevel.entities:
+                    if(type(entity) == NPC):
+                        Game.currentLevel.removeEntity(entity)
+                        break
+            elif(self.currentQuest >= 4 and path == "levels\\level.json"):
+                for entity in Game.currentLevel.entities:
+                    if(type(entity) == NPC):
+                        entity.x = 2300
+                        entity.y = 1050
+                        break
+                removeObjects: list[LevelObject] = []
+                for levelObject in self.levelObjects:
+                    coords: Point = levelObject.pos
+                    if(type(levelObject) == Water and coords.x >= 2400 and coords.x <= 2800 and coords.y >= 900 and coords.y <= 1100):
+                        removeObjects.append(levelObject)
+                for obj in removeObjects:
+                    self.removeLevelObject(obj)
+                for x in range(2400, 2801, 50):
+                    for y in range(900, 1101, 50):
+                        self.addLevelObject(WoodFloor(Point(x, y)))
 
     def getRandomEnemyPos(self, type: type[Enemy]):
         pos: Point = Point(random.randint(-950, 2358), random.randint(-340, 2459))
@@ -74,32 +104,37 @@ class Level:
         return pos
 
     def onRaidDamage(self):
+        self.raidHealth = 0
+        for enemy in self.raid:
+            self.raidHealth += enemy.health
         self.updateRaidBossBar()
+        if(self.raidHealth == 0 and self.currentQuest == 2):
+            self.setCurrentQuest(3)
 
     def updateRaidBossBar(self):
         self.bossBar = GameObject(pygame.Surface((Game.screen.get_width() * 0.8, 10)), Point(Game.screen.get_width() * 0.1, 45))
         self.bossBar.surface.fill(pygame.Color(255, 255, 255))
-        raidHealth = 0
-        for enemy in self.raid:
-            raidHealth += enemy.health
-        if(raidHealth == 0):
+        if(self.raidHealth == 0):
             return
-        healthRect: pygame.Rect = (0, 0, self.bossBar.surface.get_width() / (self.maxRaidHealth / raidHealth), 10)
+        healthRect: pygame.Rect = (0, 0, self.bossBar.surface.get_width() / (self.maxRaidHealth / self.raidHealth), 10)
         self.bossBar.surface.fill(pygame.Color(255, 0, 0), healthRect)
         if(self.bossBarTitle == None or self.bossBarTitle.text != "Monster"):
             self.bossBarTitle = TextBox("Monster", Point(0, Game.screen.get_height() / 2 - 20), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 40), fontColor = pygame.Color(255, 255, 255))
 
     def spawnRaid(self):
         self.raid = []
-        for i in range(8 - math.floor(math.log(random.random() * 5 + 1, 1.75))):
-            type: type[Enemy] = Zombie if random.random() >= 0.85 else Slime
-            pos: Point = self.getRandomEnemyPos(type)
-            enemy: Enemy = type(pos, self.onRaidDamage)
-            self.addEntity(enemy)
-            self.raid.append(enemy)
+        # for i in range(7 - math.floor(math.log(random.random() * 5 + 1, 1.75))):
+        #     type: type[Enemy] = Zombie if random.random() >= 0.85 else Slime
+        #     enemy: Enemy = type(self.getRandomEnemyPos(type), self.onRaidDamage)
+        #     self.addEntity(enemy)
+        #     self.raid.append(enemy)
+        type: type[Enemy] = Zombie if random.random() >= 0.85 else Slime
+        enemy: Enemy = Zombie(self.getRandomEnemyPos(type), self.onRaidDamage)
+        self.addEntity(enemy)
+        self.raid.append(enemy)
         for enemy in self.raid:
             self.maxRaidHealth += enemy.maxHealth
-        self.updateRaidBossBar()
+        self.onRaidDamage()
             
     def addEntity(self, entity: Entity):
         self.entities.append(entity)
@@ -117,6 +152,17 @@ class Level:
         except:
             pass
 
+    def setCurrentQuest(self, i: int):
+        self.currentQuest = i
+        self.updateQuestDisplay()
+
+    def updateQuestDisplay(self):
+        fontSurface: pygame.Surface = pygame.font.Font("fonts\\Roboto-Bold.ttf", 30).render("Quest: " + self.getCurrentQuestAsString(), True, pygame.Color(255, 255, 255))
+        bgSurface: pygame.Surface = pygame.Surface((fontSurface.get_width(), fontSurface.get_height()), pygame.SRCALPHA).convert_alpha()
+        bgSurface.fill(pygame.Color(0, 0, 0, 100))
+        bgSurface.blit(fontSurface, (0, 0))
+        self.questDisplay = GameObject(bgSurface, Point(Game.screen.get_width() - fontSurface.get_width(), 0))
+
     def join(self):
         MenuManager.setMenu(None)
         Game.state = Game.GameState.IN_LEVEL
@@ -128,6 +174,7 @@ class Level:
             self.update(0)
             self.entities[1].interact()
             self.currentQuest = 0
+            self.updateQuestDisplay()
 
     def save(self):
         save: dict[str, any] = {
@@ -171,13 +218,23 @@ class Level:
             return
 
         for entity in self.entities:
-            if(entity.isNotOnScreen(self.cameraPos)):
-                continue
             entity.update(time)
         if(self.player.isAlive == False and MenuManager.currentMenu != MenuManager.Menus.DeathMenu):
             Game.state = Game.GameState.IN_MENU
             MenuManager.setMenu(MenuManager.Menus.DeathMenu)
         self.cameraPos = (self.player.pos.x - Game.screen.get_width() / 2 + self.player.surface.get_width() / 2, self.player.pos.y - Game.screen.get_height() / 2 + self.player.surface.get_height() / 2)
+
+    def getCurrentQuestAsString(self) -> str:
+        if(self.currentQuest == 0):
+            return "Rede mit dem Bürgermeister"
+        elif(self.currentQuest == 1 or self.currentQuest == 2):
+            return "Besiege die Monster"
+        elif(self.currentQuest == 3):
+            return "Berichte dem Bürgermeister von deinem Sieg gegen die Monster"
+        elif(self.currentQuest == 4):
+            return "Besuche die Dorfbewohnerin im Osten der Insel"
+        elif(self.currentQuest == 5):
+            return "Erkunde die Basis der Monster"
 
     def render(self, screen: pygame.Surface):
         for i in self.layerLevelObjects:
@@ -190,6 +247,8 @@ class Level:
                     if(entity.isNotOnScreen(self.cameraPos)):
                         continue
                     entity.renderMinusOffset(screen, self.cameraPos)
+        # if(self.isNight):
+        #     Textures.NIGHT_OVERLAY.render(screen)
         for i in range(self.player.health):
             Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2 * i + 2, 2))
         if(self.dialogue != None):
@@ -197,6 +256,8 @@ class Level:
         if(len(self.raid) > 0):
             self.bossBar.render(screen)
             self.bossBarTitle.render(screen)
+        if(self.questDisplay != None and self.dialogue == None):
+            self.questDisplay.render(screen)
 
     def addLevelObject(self, object: LevelObject):
         self.levelObjects.append(object)

@@ -9,7 +9,7 @@ class PositionOffset(Enum):
     CENTER_SCREEN = 1
 
 class Button(UIElement):
-    def __init__(self, text: str, rect: pygame.Rect, onClick: callable, font: pygame.font.Font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 30), fontColor: pygame.Color = pygame.Color(194, 194, 194), borderColor: pygame.Color = pygame.Color(194, 194, 194), bgColor: pygame.Color = pygame.Color(15, 15, 15), borderRadius: int = 30, offset: PositionOffset =  PositionOffset.CENTER_SCREEN, hoverColor: pygame.Color = pygame.Color(50, 50, 50)):
+    def __init__(self, text: str, rect: pygame.Rect, onClick: callable, font: pygame.font.Font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 30), fontColor: pygame.Color = pygame.Color(194, 194, 194), borderColor: pygame.Color = pygame.Color(194, 194, 194), bgColor: pygame.Color = pygame.Color(0, 0, 0, 0), borderRadius: int = 30, offset: PositionOffset =  PositionOffset.CENTER_SCREEN, hoverColor: pygame.Color = pygame.Color(255, 255, 255, 50)):
         super().__init__()
         self.isHoverd: bool = False
         font.bold = True
