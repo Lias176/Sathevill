@@ -39,6 +39,7 @@ def init(initScreen: pygame.Surface):
         LevelObject.idClasses[subclass.id] = subclass
     for subclass in Enemy.__subclasses__():
         LevelObject.idClasses[subclass.id] = subclass
+    Textures.MENU_BG.resize(height=screen.get_height())
     thread: Thread = Thread(target = loadNightOverlay)
     thread.start()
 

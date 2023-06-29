@@ -17,7 +17,7 @@ class NPC(Entity):
         self.renderInteractText = False
         match(Game.currentLevel.currentQuest):
             case 0:
-                Game.currentLevel.showText(TextDialogue([["Der Bürgermeister ist in dem Haus über mir", "zu finden"]]))
+                Game.currentLevel.showText(TextDialogue([["Der Bürgermeister ist in dem Haus über mir", "zu finden."]]))
             case 4:
                 Game.currentLevel.showText(TextDialogue([["Hallo, wir haben die Monsterbasis entdeckt!"],
                                                          ["Sie ist auf der Insel rechts von hier."],
