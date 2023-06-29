@@ -34,19 +34,28 @@ class Entity(LevelObject):
         updatedY: bool = False
         cameraPos = Game.currentLevel.cameraPos
         # set own rendering layer
-        for obj in Game.currentLevel.layerLevelObjects[1]:
-            if(obj.isNotOnScreen(cameraPos)):
-                continue
-            if(self.colliderect(obj.getRect())):
-                if(obj.collisionRect == None or self.y + self.surface.get_height() >= obj.getAbsoluteCollisionRect().bottom):
-                    if(self.renderingLayer == 0):
-                        self.renderingLayer = 1
-                        Game.currentLevel.layerEntities[0].remove(self)
-                        Game.currentLevel.layerEntities[1].append(self)
-                elif(self.renderingLayer == 1):
-                        self.renderingLayer = 0
-                        Game.currentLevel.layerEntities[1].remove(self)
-                        Game.currentLevel.layerEntities[0].append(self)
+        if 1 in Game.currentLevel.layerLevelObjects:
+            for obj in Game.currentLevel.layerLevelObjects[1]:
+                if(obj.isNotOnScreen(cameraPos)):
+                    continue
+                if(self.colliderect(obj.getRect())):
+                    if(obj.collisionRect == None or self.y + self.surface.get_height() >= obj.getAbsoluteCollisionRect().bottom):
+                        if(self.renderingLayer == 0):
+                            self.renderingLayer = 1
+                            try:
+                                Game.currentLevel.layerEntities[0].remove(self)
+                            except:
+                                pass
+                            Game.currentLevel.layerEntities[1].append(self)
+                    elif(self.renderingLayer == 1):
+                            self.renderingLayer = 0
+                            try:
+                                Game.currentLevel.layerEntities[1].remove(self)
+                            except:
+                                pass
+                            Game.currentLevel.layerEntities[0].append(self)
+        else:
+            self.renderingLayer = 1
         for levelObject in Game.currentLevel.collisionObjects:
             if(levelObject.isNotOnScreen(cameraPos)):
                 continue

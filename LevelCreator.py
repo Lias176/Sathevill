@@ -1,4 +1,4 @@
-import pygame, json, Game, Textures, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC, Entities.Zombie
+import pygame, json, Game, Textures, MenuManager, collections, LevelObjects.SchokoDrink, LevelObjects.Palm, LevelObjects.Tree, LevelObjects.Grass, LevelObjects.House, LevelObjects.MonsterBaseEntry, LevelObjects.House2, CoordUtils, LevelObjects.MonsterbaseFloor, LevelObjects.WoodFloor, LevelObjects.Water, LevelObjects.House3, LevelObjects.House4, LevelObjects.Sand, LevelObjects.Stone, Entities.Slime, Entities.NPC, Entities.NPC1, Entities.Zombie, LevelObjects.WoodWall, LevelObjects.DoorBlock
 from GameObject import GameObject
 from Point import Point
 from io import TextIOWrapper
@@ -14,6 +14,7 @@ from UIElement import UIElement
 from Button import PositionOffset
 from InputBoxList import InputBoxList
 from Enemy import Enemy
+from InputBox import InputBox
 
 class LevelCreator:
     def __init__(self):
@@ -163,6 +164,9 @@ class LevelCreator:
                 case PropertyTypes.STRINGLISTLIST:
                     boxList: InputBoxList = InputBoxList(Point(self.configBGPanel.pos.x + 10, self.configUI[-1].pos.y + self.configUI[-1].height + 10), self.configBGPanel.surface.get_width() - 20, 100, property.var)
                     self.configUI.append(boxList)
+                case PropertyTypes.STRING:
+                    box: InputBox = InputBox(Point(self.configBGPanel.pos.x + 10, self.configUI[-1].pos.y + self.configUI[-1].height + 10), self.configBGPanel.surface.get_width() - 20, 100, [property.var])
+                    self.configUI.append(box)
 
     def mouseUp(self, button: int):
         if(button == 1):

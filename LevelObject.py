@@ -11,6 +11,7 @@ class LevelObject(GameObject):
     idClasses: dict[str, type[LevelObject]] = {}
     isEntity: bool = False
     interactTextStr: str = None
+    interactRect: pygame.Rect = None
 
     def __init__(self, pos: Point):
         super().__init__(self.surface, pos)
@@ -36,8 +37,11 @@ class LevelObject(GameObject):
         surface.blit(textSurface, (indicatorSurface.get_width(), 0))
         self.interactText = GameObject(surface, Point(0, 0))
 
-    def getAbsoluteCollisionRect(self):
+    def getAbsoluteCollisionRect(self) -> pygame.Rect:
         return pygame.Rect(self.pos.x + self.collisionRect.left, self.pos.y + self.collisionRect.top, self.collisionRect.width, self.collisionRect.height)
+
+    def getAbsoluteInteractRect(self) -> pygame.Rect:
+        return pygame.Rect(self.pos.x + self.interactRect.left, self.pos.y + self.interactRect.top, self.interactRect.width, self.interactRect.height)
 
     def interact(self):
         pass

@@ -22,27 +22,29 @@ class Level:
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
         self.interactableObjects: list[LevelObject] = []
         self.collisionObjects: list[LevelObject] = []
-        self.particles: list[GameObject] = []
         self.saveFilePath: str = file
         self.dialogue: TextDialogue = None
         self.raid: list[Enemy] = []
         self.isPaused: bool = False
+        self.currentQuest: int = None
         self.cameraPos: tuple[int, int] = (0, 0)
         self.bossBar: GameObject = None
         self.bossBarTitle: TextBox = None
+        self.overWorldPos: Point = None
         self.maxRaidHealth: int = 0
-        try:
-            saveFile: TextIOWrapper = open(self.saveFilePath, "r")
-            save: dict[str, any] = json.loads(saveFile.read())
-            self.player.x = save["location"]["x"]
-            self.player.y = save["location"]["y"]
-            self.player.health = save["health"]
-            saveFile.close()
-        except:
-            self.player.x = 0
-            self.player.y = 0
-            self.player.health = self.player.maxHealth
-        levelFile: TextIOWrapper = open("level.json", "r")
+        self.loadFile("levels\\level.json")
+
+    def loadFile(self, path: str):
+        self.entities = []
+        self.layerEntities = { 0: [], 1: [] }
+        self.addEntity(self.player)
+        for raidEnemy in self.raid:
+            self.addEntity(raidEnemy)
+        self.levelObjects = []
+        self.layerLevelObjects = {}
+        self.interactableObjects = []
+        self.collisionObjects = []
+        levelFile: TextIOWrapper = open(path, "r")
         level: dict[str, list[list]] = json.loads(levelFile.read())
         for id in level.keys():
             objectType: type[LevelObject] = LevelObject.getClassById(id)
@@ -64,7 +66,6 @@ class Level:
                     self.interactableObjects.append(object)
                 if(object.collisionRect != None):
                     self.collisionObjects.append(object)
-        self.spawnRaid()
 
     def getRandomEnemyPos(self, type: type[Enemy]):
         pos: Point = Point(random.randint(-950, 2358), random.randint(-340, 2459))
@@ -91,9 +92,9 @@ class Level:
     def spawnRaid(self):
         self.raid = []
         for i in range(8 - math.floor(math.log(random.random() * 5 + 1, 1.75))):
-            type: type[Enemy] = Zombie if random.random() >= 0.8 else Slime
+            type: type[Enemy] = Zombie if random.random() >= 0.85 else Slime
             pos: Point = self.getRandomEnemyPos(type)
-            enemy: Enemy = Zombie(pos, self.onRaidDamage) if random.random() >= 0.9 else Slime(pos, self.onRaidDamage)
+            enemy: Enemy = type(pos, self.onRaidDamage)
             self.addEntity(enemy)
             self.raid.append(enemy)
         for enemy in self.raid:
@@ -121,6 +122,12 @@ class Level:
         Game.state = Game.GameState.IN_LEVEL
         if(self.player.health <= 0):
             self.respawn()
+        if(self.currentQuest == None):
+            self.player.x = -95
+            self.player.y = 755
+            self.update(0)
+            self.entities[1].interact()
+            self.currentQuest = 0
 
     def save(self):
         save: dict[str, any] = {
@@ -183,10 +190,6 @@ class Level:
                     if(entity.isNotOnScreen(self.cameraPos)):
                         continue
                     entity.renderMinusOffset(screen, self.cameraPos)
-        for particle in self.particles:
-            if(particle.isNotOnScreen(self.cameraPos)):
-                continue
-            particle.renderMinusOffset(screen, self.cameraPos)
         for i in range(self.player.health):
             Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2 * i + 2, 2))
         if(self.dialogue != None):

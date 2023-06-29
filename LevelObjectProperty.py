@@ -2,6 +2,7 @@ from enum import Enum
 
 class PropertyTypes(Enum):
     STRINGLISTLIST = 0
+    STRING = 1
 
 class LevelObjectProperty:
     def __init__(self, name: str,  type: PropertyTypes, var):
@@ -13,6 +14,8 @@ class LevelObjectProperty:
         match(self.type):
             case PropertyTypes.STRINGLISTLIST:
                 return "stringlistlist"
+            case PropertyTypes.STRING:
+                return "string"
 
     @classmethod
     def fromString(self, name: str, str: str, var):
@@ -20,4 +23,6 @@ class LevelObjectProperty:
         match(str):
             case "stringlistlist":
                 type = PropertyTypes.STRINGLISTLIST
+            case "string":
+                type = PropertyTypes.STRING
         return LevelObjectProperty(name, type, var)

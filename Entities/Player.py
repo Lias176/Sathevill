@@ -96,7 +96,8 @@ class Player(Entity):
 
     def checkRenderInteraction(self, object: LevelObject):
         aimRect: pygame.Rect = self.getAimRect()
-        if(object.colliderect(aimRect)):
+        rect: pygame.Rect = object.getRect() if object.interactRect == None else object.getAbsoluteInteractRect()
+        if(rect.colliderect(aimRect)):
             if(not object.renderInteractText):
                 object.activateInteractText()
         elif(object.renderInteractText):
@@ -134,8 +135,8 @@ class Player(Entity):
         self.invincible = False
 
     def respawn(self):
-        self.x = 0
-        self.y = 0
+        self.x = -95
+        self.y = 755
         self.isAlive = True
         self.health = self.maxHealth
 
