@@ -30,5 +30,5 @@ class NPC(Entity):
                 Game.currentLevel.showText(TextDialogue([["Hallo Reisender!"], 
                                        ["Willkommen in unserem abgelegenem Dorf."], 
                                        ["Du scheinst, als würdest du dich hier", "noch nicht auskennen."], 
-                                       ["Du solltest mit dem Bürgermeister reden"],
-                                       ["Er ist in dem Haus über mir zu finden"]]))
+                                       ["Du solltest mit dem Bürgermeister reden."],
+                                       ["Er ist in dem Haus über mir zu finden."]]))

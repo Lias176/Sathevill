@@ -31,7 +31,7 @@ class NPC(Entity):
                                                      ["Wir konnten ihre Basis finden."],
                                                      ["Jedoch ist sie auf einer anderen Insel,", "wo wir nicht so leicht hinkommen."],
                                                      ["Eine Dorfbewohnerin wollte eine Brücke bauen."],
-                                                     ["Du solltest sie einmal besuchen gehen.", "Sie ist ganz im Osten der Insel zu finden."]]))
+                                                     ["Du solltest sie einmal besuchen gehen.", "Sie ist  im Osten der Insel zu finden."]]))
             Game.currentLevel.setCurrentQuest(4)
         elif(Game.currentLevel.currentQuest == 4):
-            Game.currentLevel.showText(TextDialogue([["Die Dorfbewohnerin im Osten der Insel", "wollte eine Brücke zur Basis der Monster bauen"]]))
+            Game.currentLevel.showText(TextDialogue([["Die Dorfbewohnerin im Osten der Insel", "wollte eine Brücke zur Basis der Monster bauen."]]))
