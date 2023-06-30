@@ -198,6 +198,7 @@ class Level:
             self.entities[1].interact()
             self.currentQuest = 0
         self.updateQuestDisplay()
+        self.save()
 
     def save(self):
         save: dict[str, any] = {
@@ -208,7 +209,7 @@ class Level:
             "health": self.player.health,
             "currentQuest": self.currentQuest,
             "currentFile": self.currentFile,
-            "overworldPos": self.overWorldPos.toTuple()
+            "overworldPos": self.overWorldPos.toTuple() if self.overWorldPos != None else None
         }
         saveFile: TextIOWrapper = open(self.saveFilePath, "w")
         json.dump(save, saveFile)
