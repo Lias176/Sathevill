@@ -15,5 +15,5 @@ class GiantZombie(Enemy):
         self.attackCooldownAmount = 200
         self.seeDistance = 1000
         self.attackDistance = 150
-        self.maxHealth = 30
+        self.maxHealth = 20
         self.health = self.maxHealth   

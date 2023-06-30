@@ -69,7 +69,7 @@ def setMenu(menu):
             ]
         case Menus.GAME_COMPLETE:
             uiElements = [
-                TextBox("Ende", Point(0, 0), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 100))
+                TextBox("Gewonnen", Point(0, 0), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 100))
             ]
 
 # MainMenu
