@@ -23,6 +23,7 @@ class Level:
         self.layerEntities: dict[int, list[Entity]] = { 0: [], 1: [] }
         self.addEntity(self.player)
         self.levelObjects: list[LevelObject] = []
+        self.currentFile = "levels\\level.json"
         self.layerLevelObjects: dict[int, list[LevelObject]] = {}
         self.interactableObjects: list[LevelObject] = []
         self.collisionObjects: list[LevelObject] = []
@@ -39,9 +40,27 @@ class Level:
         self.overWorldPos: Point = None
         self.isNight: bool = False
         self.maxRaidHealth: int = 0
-        self.loadFile("levels\\level.json")
+
+        try:
+            saveFile = open(file, "r")
+            string = ""
+            for line in saveFile.readlines():
+                string += line
+            save = json.loads(string)
+            self.player.x = save["location"]["x"]
+            self.player.y = save["location"]["y"]
+            self.player.health = save["health"]
+            self.currentQuest = save["currentQuest"]
+            self.currentFile = save["currentFile"]
+            self.overWorldPos = Point.fromTuple(save["overworldPos"])
+            saveFile.close()
+        except:
+            pass
+
+        self.loadFile(self.currentFile)
 
     def loadFile(self, path: str):
+        self.currentFile = path
         self.entities = []
         self.layerEntities = { 0: [], 1: [] }
         self.addEntity(self.player)
@@ -76,12 +95,15 @@ class Level:
                     self.collisionObjects.append(object)
         if(self.currentQuest != None):
             if(self.currentQuest >= 1 and self.currentQuest <= 3):
-                for entity in Game.currentLevel.entities:
+                for entity in self.entities:
                     if(type(entity) == NPC):
-                        Game.currentLevel.removeEntity(entity)
+                        self.removeEntity(entity)
                         break
+                if(self.currentQuest == 2 and len(self.raid) == 0):
+                    self.spawnRaid()
+                    self.isNight = True
             elif(self.currentQuest >= 4 and path == "levels\\level.json"):
-                for entity in Game.currentLevel.entities:
+                for entity in self.entities:
                     if(type(entity) == NPC):
                         entity.x = 2300
                         entity.y = 1050
@@ -123,11 +145,11 @@ class Level:
 
     def spawnRaid(self):
         self.raid = []
-        # for i in range(7 - math.floor(math.log(random.random() * 5 + 1, 1.75))):
-        #     type: type[Enemy] = Zombie if random.random() >= 0.85 else Slime
-        #     enemy: Enemy = type(self.getRandomEnemyPos(type), self.onRaidDamage)
-        #     self.addEntity(enemy)
-        #     self.raid.append(enemy)
+        for i in range(7 - math.floor(math.log(random.random() * 5 + 1, 1.75))):
+            type: type[Enemy] = Zombie if random.random() >= 0.85 else Slime
+            enemy: Enemy = type(self.getRandomEnemyPos(type), self.onRaidDamage)
+            self.addEntity(enemy)
+            self.raid.append(enemy)
         type: type[Enemy] = Zombie if random.random() >= 0.85 else Slime
         enemy: Enemy = Zombie(self.getRandomEnemyPos(type), self.onRaidDamage)
         self.addEntity(enemy)
@@ -155,6 +177,7 @@ class Level:
     def setCurrentQuest(self, i: int):
         self.currentQuest = i
         self.updateQuestDisplay()
+        self.save()
 
     def updateQuestDisplay(self):
         fontSurface: pygame.Surface = pygame.font.Font("fonts\\Roboto-Bold.ttf", 30).render("Quest: " + self.getCurrentQuestAsString(), True, pygame.Color(255, 255, 255))
@@ -174,7 +197,7 @@ class Level:
             self.update(0)
             self.entities[1].interact()
             self.currentQuest = 0
-            self.updateQuestDisplay()
+        self.updateQuestDisplay()
 
     def save(self):
         save: dict[str, any] = {
@@ -182,7 +205,10 @@ class Level:
                 "x": self.player.x,
                 "y": self.player.y
             },
-            "health": self.player.health
+            "health": self.player.health,
+            "currentQuest": self.currentQuest,
+            "currentFile": self.currentFile,
+            "overworldPos": self.overWorldPos.toTuple()
         }
         saveFile: TextIOWrapper = open(self.saveFilePath, "w")
         json.dump(save, saveFile)
@@ -235,6 +261,8 @@ class Level:
             return "Besuche die Dorfbewohnerin im Osten der Insel"
         elif(self.currentQuest == 5):
             return "Erkunde die Basis der Monster"
+        elif(self.currentQuest == 6):
+            return "Besiege den Boss"
 
     def render(self, screen: pygame.Surface):
         for i in self.layerLevelObjects:
@@ -247,8 +275,8 @@ class Level:
                     if(entity.isNotOnScreen(self.cameraPos)):
                         continue
                     entity.renderMinusOffset(screen, self.cameraPos)
-        # if(self.isNight):
-        #     Textures.NIGHT_OVERLAY.render(screen)
+        if(self.isNight):
+            Textures.NIGHT_OVERLAY.render(screen)
         for i in range(self.player.health):
             Textures.HEART.renderAt(screen, (Textures.HEART.surface.get_width() * i + 2 * i + 2, 2))
         if(self.dialogue != None):

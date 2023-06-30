@@ -1,6 +1,5 @@
-import pygame, sys, functools, Game, os, tkinter, Level, Textures
+import pygame, sys, functools, Game, os, Level, Textures
 from enum import Enum
-from tkinter import filedialog
 from Button import Button
 from LevelCreator import LevelCreator
 from UIElement import UIElement
@@ -15,6 +14,7 @@ class Menus(Enum):
     PauseMenu = 3,
     DeathMenu = 4,
     LevelCreatorMenu = 5
+    GAME_COMPLETE = 6
 
 uiElements: list[UIElement] = []
 currentMenu = None
@@ -46,23 +46,8 @@ def setMenu(menu):
         case Menus.MainMenu:
             uiElements = [
                 TextBox("Sathevill", Point(0, 300), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 150), fontColor = pygame.Color(255, 255, 255, 135)),
-                Button("Play", pygame.Rect(0, 90, 400, 50), mainMenu_playButtonOnClick),
-                Button("Options", pygame.Rect(0, 30, 400, 50), mainMenu_optionsButtonOnClick),
-                Button("Level creator", pygame.Rect(0, -30, 400, 50), mainMenu_levelCreatorButtonOnClick),
-                Button("Quit", pygame.Rect(0, -90, 400, 50), mainMenu_quitButtonOnClick)
-            ]
-        case Menus.OptionsMenu:
-            uiElements = [
-                Button("Back", pygame.Rect(0, 0, 400, 50), optionsMenu_backButtonOnClick)
-            ]
-        case Menus.PlayMenu:
-            uiElements = [
-                Button("Back", pygame.Rect(0, 150, 400, 50), playMenu_backButtonOnClick),
-                Button("Save 1", pygame.Rect(0, 90, 400, 50), functools.partial(playMenu_saveButtonOnClick, 1)),
-                Button("Save 2", pygame.Rect(0, 30, 400, 50), functools.partial(playMenu_saveButtonOnClick, 2)),
-                Button("Save 3", pygame.Rect(0, -30, 400, 50), functools.partial(playMenu_saveButtonOnClick, 3)),
-                Button("Save 4", pygame.Rect(0, -90, 400, 50), functools.partial(playMenu_saveButtonOnClick, 4)),
-                Button("Save 5", pygame.Rect(0, -150, 400, 50), functools.partial(playMenu_saveButtonOnClick, 5))
+                Button("Play", pygame.Rect(0, 30, 400, 50), playMenu_saveButtonOnClick),
+                Button("Quit", pygame.Rect(0, -30, 400, 50), mainMenu_quitButtonOnClick)
             ]
         case Menus.PauseMenu:
             uiElements = [
@@ -72,7 +57,7 @@ def setMenu(menu):
         case Menus.DeathMenu:
             uiElements = [
                 TextBox("Du bist gestorben!", Point(0, 115), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 60)),
-                Button("Respawn", pygame.Rect(0, 30, 400, 50), deathMenu_respawnOnClick),
+                Button("Respawn", pygame.Rect(0, 30, 400, 50), playMenu_saveButtonOnClick),
                 Button("Back to Main Menu", pygame.Rect(0, -30, 400, 50), deathMenu_backToMainMenuOnClick)
             ]
         case Menus.LevelCreatorMenu:
@@ -81,6 +66,10 @@ def setMenu(menu):
                 Button("Load Level", pygame.Rect(0, 30, 400, 50), levelCreatorMenu_loadLevelOnClick),
                 Button("Save Level", pygame.Rect(0, -30, 400, 50), levelCreatorMenu_saveLevelOnClick),
                 Button("Back to Main Menu", pygame.Rect(0, -90, 400, 50), levelCreatorMenu_backToMainMenuOnClick)
+            ]
+        case Menus.GAME_COMPLETE:
+            uiElements = [
+                TextBox("Ende", Point(0, 0), font = pygame.font.Font("fonts\\Roboto-Bold.ttf", 100))
             ]
 
 # MainMenu
@@ -102,8 +91,8 @@ def mainMenu_quitButtonOnClick():
 def playMenu_backButtonOnClick():
     setMenu(Menus.MainMenu)
 
-def playMenu_saveButtonOnClick(saveNumber : int):
-    saveFile = os.path.expanduser("~\\sathevill\\save" + str(saveNumber) + ".json")
+def playMenu_saveButtonOnClick():
+    saveFile = os.path.expanduser("~\\sathevill\\save.json")
     Game.currentLevel = Level.Level(saveFile)
     Game.currentLevel.join()
 
@@ -124,9 +113,6 @@ def pauseMenu_backToMainMenuOnClick():
 def deathMenu_backToMainMenuOnClick():
     Game.currentLevel.leave()
 
-def deathMenu_respawnOnClick():
-    Game.currentLevel.respawn()
-
 #LevelCreatorMenu
 def levelCreatorMenu_backToMainMenuOnClick():
     for uiElement in Game.currentLevelCreator.configUI:
@@ -139,13 +125,15 @@ def levelCreatorMenu_backToLevelCreatorOnClick():
     Game.currentLevelCreator.openMenu(False)
 
 def levelCreatorMenu_saveLevelOnClick():
-    root = tkinter.Tk()
-    root.withdraw()
-    filePath = filedialog.asksaveasfilename(filetypes=[("JSON File", ".json")], parent=root)
-    Game.currentLevelCreator.saveToFile(filePath if filePath.endswith(".json") else filePath + ".json")
+    # root = tkinter.Tk()
+    # root.withdraw()
+    # filePath = filedialog.asksaveasfilename(filetypes=[("JSON File", ".json")], parent=root)
+    # Game.currentLevelCreator.saveToFile(filePath if filePath.endswith(".json") else filePath + ".json")
+    pass
 
 def levelCreatorMenu_loadLevelOnClick():
-    root = tkinter.Tk()
-    root.withdraw()
-    filePath = filedialog.askopenfilename(filetypes=[("JSON File", ".json")], parent=root)
-    Game.currentLevelCreator.loadFromFile(filePath)
+    # root = tkinter.Tk()
+    # root.withdraw()
+    # filePath = filedialog.askopenfilename(filetypes=[("JSON File", ".json")], parent=root)
+    # Game.currentLevelCreator.loadFromFile(filePath)
+    pass

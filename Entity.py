@@ -1,4 +1,4 @@
-import pygame, math, Game
+import pygame, math, Game, MenuManager
 from LevelObject import LevelObject
 from Point import Point
 from Timer import Timer
@@ -108,6 +108,9 @@ class Entity(LevelObject):
     def takeDamage(self, damageAmount: int, removeFromList: bool = True):
         self.health -= damageAmount
         if(self.health <= 0):
+            if(self.id == "giantZombie"):
+                Game.state = Game.GameState.IN_MENU
+                MenuManager.setMenu(MenuManager.Menus.GAME_COMPLETE)
             self.isAlive = False
             if(removeFromList):
                 Game.currentLevel.removeEntity(self)

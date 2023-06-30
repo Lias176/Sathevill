@@ -17,3 +17,5 @@ class MonsterBaseEntry(LevelObject):
         Game.currentLevel.loadFile("levels\\cave.json")
         Game.currentLevel.player.x = 900
         Game.currentLevel.player.y = 550
+        if(Game.currentLevel.currentQuest == 5):
+            Game.currentLevel.setCurrentQuest(6)
